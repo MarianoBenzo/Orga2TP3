@@ -51,10 +51,28 @@ start:
     ; habilitar A20
 
     ; cargar la GDT
+    ; la estructura gdt_descriptor contiene los datos necesarios para cargar en GDTR (en orden)
+    LGDT [GDT_DESC]      
 
     ; setear el bit PE del registro CR0
+    ; no estoy operando en 16 bits? puedo hacer mov bx:ax, cr0 (y mov cr0, bx:ax)?
+    mov eax, CR0
+    or eax, 1
+    mov CR0, eax
 
     ; pasar a modo protegido
+    jmp 0x08:modoProtegido     
+
+BITS 32
+modoProtegido:
+    xor eax, eax
+    ; hay que setear la pila del kernel en la direccion 0x27000
+    ; como cargo 0x270000 (20 bits) si ss es de 16 bits?
+    mov ax, 1000b
+    mov ss, 
+    mov ax, 10000b         ; index: 3 (segmento kernel_data)
+    mov ds, ax
+
 
     ; acomodar los segmentos
 
