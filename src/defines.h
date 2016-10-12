@@ -27,6 +27,11 @@
 /* Indices en la gdt */
 /* -------------------------------------------------------------------------- */
 #define GDT_IDX_NULL_DESC           0
+#define kernel_code 18
+#define kernel_data 19
+#define user_code 20
+#define user_data 21
+#define pantalla 22
 
 /* Direcciones de memoria */
 /* -------------------------------------------------------------------------- */
@@ -65,5 +70,6 @@
 #define TASK_8_CODE_SRC_ADDR    0x0001E000
 
 #define TASK_IDLE_CODE_SRC_ADDR 0x00020000
+
 
 #endif  /* !__DEFINES_H__ */

@@ -7,6 +7,7 @@
 
 global start
 
+extern screen_pintar_pantalla
 
 ;; GDT
 extern GDT_DESC
@@ -49,36 +50,38 @@ start:
 
 
     ; habilitar A20
+    call habilitar_A20
 
     ; cargar la GDT
     ; la estructura gdt_descriptor contiene los datos necesarios para cargar en GDTR (en orden)
     LGDT [GDT_DESC]      
 
     ; setear el bit PE del registro CR0
-    ; no estoy operando en 16 bits? puedo hacer mov bx:ax, cr0 (y mov cr0, bx:ax)?
     mov eax, CR0
     or eax, 1
     mov CR0, eax
 
     ; pasar a modo protegido
-    jmp 0x08:modoProtegido     
+    ; 0x90 = 10010 000 accedo a la entrada 18 de GDT (kernel_code)
+    jmp 0x90:modoProtegido     
 
 BITS 32
 modoProtegido:
     xor eax, eax
     ; hay que setear la pila del kernel en la direccion 0x27000
-    ; como cargo 0x270000 (20 bits) si ss es de 16 bits?
-    mov ax, 1000b
-    mov ss, 
-    mov ax, 10000b         ; index: 3 (segmento kernel_data)
+    ; ss describe el segmento donde esta la pila (kernel_data)
+    mov ax, 0x98
+    mov ss, ax
     mov ds, ax
-
-
+    mov ax, 0xb0
+    mov es, ax
     ; acomodar los segmentos
 
     ; setear la pila
+    mov esp, 0x27000
 
     ; pintar pantalla, todos los colores, que bonito!
+    call screen_pintar_pantalla
 
     ; inicializar el manejador de memoria
 
@@ -95,8 +98,10 @@ modoProtegido:
     ; inicializar entradas de la gdt de las tsss
 
     ; inicializar el scheduler
-
+    xchg bx, bx
     ; inicializar la IDT
+    call idt_inicializar
+    LIDT [IDT_DESC]
 
     ; configurar controlador de interrupciones
 
