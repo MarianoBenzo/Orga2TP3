@@ -12,13 +12,18 @@
 /* Definicion de la pantalla */
 #define VIDEO_FILS 25
 #define VIDEO_COLS 80
-#define VIDEO_MEM 0xB8000
+#define VIDEO_SCREEN 0xB8000
 
-typedef struct pixel {
-	unsigned char caracter;
-	unsigned char modo;
-} __attribute__((packed)) pixel;
+typedef struct ca_s {
+    unsigned char c;
+    unsigned char a;
+} ca;
 
+void print(const char * text, unsigned int x, unsigned int y, unsigned short attr);
+
+void print_hex(unsigned int numero, int size, unsigned int x, unsigned int y, unsigned short attr);
+
+void print_int(unsigned int n, unsigned int x, unsigned int y, unsigned short attr);
 
 void screen_pintar_pantalla();
 
