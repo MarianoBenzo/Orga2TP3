@@ -98,10 +98,14 @@ modoProtegido:
     ; inicializar entradas de la gdt de las tsss
 
     ; inicializar el scheduler
-    xchg bx, bx
+    
     ; inicializar la IDT
     call idt_inicializar
     LIDT [IDT_DESC]
+
+    xchg bx, bx
+
+    int 0x01
 
     ; configurar controlador de interrupciones
 

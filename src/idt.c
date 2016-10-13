@@ -7,6 +7,8 @@
 
 #include "idt.h"
 #include "isr.h"
+#include "colors.h"
+#include "screen.h"
 
 idt_entry idt[255] = { };
 
@@ -37,6 +39,13 @@ idt_descriptor IDT_DESC = {
     idt[numero].segsel = (unsigned short) 0x90;                                                                  \
     idt[numero].attr = (unsigned short) 0x8E00;                                                                  \
     idt[numero].offset_16_31 = (unsigned short) ((unsigned int)(&_isr ## numero) >> 16 & (unsigned int) 0xFFFF);
+
+void atender_int(int n) {
+    unsigned short attr = C_FG_RED;
+    const char *text = "Se genero la interrupcion ";
+
+    print(text, 0, 0, attr);
+}
 
 void idt_inicializar() {
     IDT_ENTRY(0);

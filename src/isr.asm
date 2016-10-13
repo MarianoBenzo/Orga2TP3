@@ -12,6 +12,8 @@ BITS 32
 ;; PIC
 extern fin_intr_pic1
 
+extern atender_int
+
 
 ;;
 ;; Definición de MACROS
@@ -22,6 +24,9 @@ global _isr%1
 
 _isr%1:
 .loopear:
+	push %1
+	call atender_int
+
     ; To Infinity And Beyond!!
     mov eax, 0xFFF2
     mov ebx, 0xFFF2
@@ -29,6 +34,7 @@ _isr%1:
     mov edx, 0xFFF2
     jmp $
 %endmacro
+
 
 ;;
 ;; Datos
