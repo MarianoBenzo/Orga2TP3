@@ -17,6 +17,15 @@ idt_descriptor IDT_DESC = {
     (unsigned int) &idt
 };
 
+void atender_int(int n) {
+    unsigned short attr = C_FG_RED;
+
+    limpiar_pantalla();
+    print("Se genero la interrupcion ", 0, 0, attr);
+    print_int(n, 26, 0, C_FG_WHITE);
+    if (n == 0)
+        print("(Division por cero)", 0, 1, C_FG_GREEN);
+}
 
 /*
     La siguiente es una macro de EJEMPLO para ayudar a armar entradas de
@@ -39,13 +48,6 @@ idt_descriptor IDT_DESC = {
     idt[numero].segsel = (unsigned short) 0x90;                                                                  \
     idt[numero].attr = (unsigned short) 0x8E00;                                                                  \
     idt[numero].offset_16_31 = (unsigned short) ((unsigned int)(&_isr ## numero) >> 16 & (unsigned int) 0xFFFF);
-
-void atender_int(int n) {
-    unsigned short attr = C_FG_RED;
-    const char *text = "Se genero la interrupcion ";
-
-    print(text, 0, 0, attr);
-}
 
 void idt_inicializar() {
     IDT_ENTRY(0);

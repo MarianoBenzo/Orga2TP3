@@ -105,7 +105,9 @@ modoProtegido:
 
     xchg bx, bx
 
-    int 0x01
+    mov eax, 4
+    mov ecx, 0
+    div ecx
 
     ; configurar controlador de interrupciones
 

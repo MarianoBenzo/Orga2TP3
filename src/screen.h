@@ -27,4 +27,6 @@ void print_int(unsigned int n, unsigned int x, unsigned int y, unsigned short at
 
 void screen_pintar_pantalla();
 
+void limpiar_pantalla();
+
 #endif  /* !__SCREEN_H__ */

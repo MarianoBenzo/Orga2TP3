@@ -14,6 +14,18 @@ void pintar(ca* p, unsigned char a, unsigned char c)
 	p->c = c;
 }
 
+void limpiar_pantalla()
+{
+    ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_SCREEN;
+    int f;
+    for (f = 0; f < VIDEO_FILS; f++)
+    {
+        int c;
+        for (c = 0; c < VIDEO_COLS; c++)
+            pintar(&(p[f][c]), 0, 0);
+    }    
+}
+
 void screen_pintar_pantalla()
 {
 	ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_SCREEN;
