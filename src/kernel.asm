@@ -8,7 +8,7 @@
 global start
 
 extern screen_pintar_pantalla
-
+extern mmu_inicializar_dir_kernel 
 ;; GDT
 extern GDT_DESC
 
@@ -86,10 +86,18 @@ modoProtegido:
     ; inicializar el manejador de memoria
 
     ; inicializar el directorio de paginas
+    xchg bx, bx
+    mov eax, 0x27000
+    mov cr3, eax
+    call mmu_inicializar_dir_kernel
 
     ; inicializar memoria de tareas
 
     ; habilitar paginacion
+    xchg bx, bx
+    mov eax, cr0
+    or eax, 0x80000000
+    mov cr0, eax
 
     ; inicializar tarea idle
 
