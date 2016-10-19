@@ -57,7 +57,7 @@ void screen_modo_mapa()
             else if(f == VIDEO_FILS-1)
                 pintar(&(p[f][c]), C_BG_BLACK, 0);
             else
-                pintar(&(p[f][c]), C_BG_BLUE, 0);
+                pintar(&(p[f][c]), C_BG_CYAN, 0);
             
         }
     }
@@ -66,26 +66,62 @@ void screen_modo_mapa()
 void screen_modo_estado()
 {
     ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_SCREEN;
-    int f;
+    int f = 0;
     int c;
+    //imprimo cabecera
     print("Francesco Tamburini/Teatro Colon", 0, 0, C_BG_BLACK + C_FG_WHITE);
     for (c = 32; c < VIDEO_COLS; c++)
         pintar(&(p[f][c]), C_BG_BLACK, 0);
 
+    //imprimo fondo
     for (f = 1; f < VIDEO_FILS; f++)
         for (c = 0; c < VIDEO_COLS; c++)
-            pintar(&(p[f][c]), C_BG_WHITE, 0);
+            pintar(&(p[f][c]), C_BG_LIGHT_GREY, 0);
 
+    //imprimo letras de los navios
+    int navio = 0;
     for (f = 2; f < 10; f += 7)
     {
-        for (c = 5; c < 48; c += 5)
+        for (c = 5; c < 51; c += 12)
         {
-            print("NAVIO ")
-            print_int()
+            print("NAVIO ", c, f, C_BG_LIGHT_GREY + C_FG_BLACK);
+            print_int(navio, c + 6, f, C_BG_LIGHT_GREY + C_FG_BLACK);
+            navio++;
         }
     }
 
-    //Terminar!!
+    //imprimo pantalla de debug
+    for (f = 2; f < 15; f++)
+        for (c = 50; c < 78; c++)
+            pintar(&(p[f][c]), C_BG_BLACK, 0);
+
+    //imprimo pantalla de estados
+    navio = 1;
+    for (f = 16; f < VIDEO_FILS - 1; f++)
+    {
+        for (c = 0; c < VIDEO_COLS; c++)
+        {
+            if (c == 0 || c == VIDEO_COLS - 1)
+                pintar(&(p[f][c]), C_BG_BLACK, 0);
+            else if (c == 1)
+                print_int(navio, c, f, C_BG_LIGHT_GREY + C_FG_BLACK);
+            else
+                pintar(&(p[f][c]), C_BG_CYAN, 0);
+        }
+        navio++;
+    }
+
+    //imprimo barra del scheduler
+    f = VIDEO_FILS - 1;
+    for (c = 0; c < VIDEO_COLS; c++)
+    {
+        if (c == 0)
+            print("*", c, f, C_BG_LIGHT_GREY + C_FG_BLACK);
+        else if (c == VIDEO_COLS - 1)
+            print("*", c, f, C_BG_BLACK + C_FG_WHITE);
+        else
+            pintar(&(p[f][c]), C_BG_BLACK, 0);
+    }
 
 }
 

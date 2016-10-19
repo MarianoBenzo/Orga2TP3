@@ -31,4 +31,6 @@ void limpiar_pantalla();
 
 void screen_modo_mapa();
 
+void screen_modo_estado();
+
 #endif  /* !__SCREEN_H__ */

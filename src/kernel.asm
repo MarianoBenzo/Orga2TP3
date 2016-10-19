@@ -9,6 +9,8 @@ global start
 
 extern screen_pintar_pantalla
 extern screen_modo_mapa
+extern screen_modo_estado
+
 extern mmu_inicializar_dir_kernel 
 ;; GDT
 extern GDT_DESC
@@ -83,21 +85,22 @@ modoProtegido:
 
     ; pintar pantalla, todos los colores, que bonito!
     call screen_pintar_pantalla
-    call screen_modo_mapa
+    ;call screen_modo_mapa
+    call screen_modo_estado
 
     ; inicializar el manejador de memoria
 
     ; inicializar el directorio de paginas
     mov eax, 0x27000
-    mov cr3, eax
+    mov CR3, eax
     call mmu_inicializar_dir_kernel
 
     ; inicializar memoria de tareas
 
     ; habilitar paginacion
-    mov eax, cr0
+    mov eax, CR0
     or eax, 0x80000000
-    mov cr0, eax
+    mov CR0, eax
 
     ; inicializar tarea idle
 
