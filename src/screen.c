@@ -43,6 +43,52 @@ void screen_pintar_pantalla()
 	}
 }
 
+void screen_modo_mapa()
+{
+    ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_SCREEN;
+    int f;
+    for (f = 0; f < VIDEO_FILS; f++)
+    {
+        int c;
+        for (c = 0; c < VIDEO_COLS; c++)
+        {
+            if (f < 4 || (f == 4 && c < 17))
+                pintar(&(p[f][c]), C_BG_GREEN, 0);
+            else if(f == VIDEO_FILS-1)
+                pintar(&(p[f][c]), C_BG_BLACK, 0);
+            else
+                pintar(&(p[f][c]), C_BG_BLUE, 0);
+            
+        }
+    }
+}
+
+void screen_modo_estado()
+{
+    ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_SCREEN;
+    int f;
+    int c;
+    print("Francesco Tamburini/Teatro Colon", 0, 0, C_BG_BLACK + C_FG_WHITE);
+    for (c = 32; c < VIDEO_COLS; c++)
+        pintar(&(p[f][c]), C_BG_BLACK, 0);
+
+    for (f = 1; f < VIDEO_FILS; f++)
+        for (c = 0; c < VIDEO_COLS; c++)
+            pintar(&(p[f][c]), C_BG_WHITE, 0);
+
+    for (f = 2; f < 10; f += 7)
+    {
+        for (c = 5; c < 48; c += 5)
+        {
+            print("NAVIO ")
+            print_int()
+        }
+    }
+
+    //Terminar!!
+
+}
+
 void print(const char * text, unsigned int x, unsigned int y, unsigned short attr) {
     ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_SCREEN;
     int i;

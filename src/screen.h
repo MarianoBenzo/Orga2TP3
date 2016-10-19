@@ -29,4 +29,6 @@ void screen_pintar_pantalla();
 
 void limpiar_pantalla();
 
+void screen_modo_mapa();
+
 #endif  /* !__SCREEN_H__ */
