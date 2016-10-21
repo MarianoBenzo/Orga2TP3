@@ -8,6 +8,8 @@
 #ifndef __MMU_H__
 #define __MMU_H__
 
+unsigned int p = 0x30000;
+
 typedef struct dir_page_entry {
     unsigned char   present:1;
     unsigned char   rw:1;

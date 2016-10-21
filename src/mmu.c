@@ -8,9 +8,14 @@
 #include "mmu.h"
 
 
+unsigned int prox_pagina(){
+	p += 0x1000;
+	return p;
+}
+
 void mmu_inicializar_dir_kernel() {
 
-	struct dir_page_entry *dir_entry = (dir_page_entry*) 0x27000;
+	dir_page_entry *dir_entry = (dir_page_entry*) 0x27000;
 	int i;
 
 	dir_entry[0].dir_base = 0x28;
@@ -25,9 +30,9 @@ void mmu_inicializar_dir_kernel() {
     dir_entry[0].rw = 1;
     dir_entry[0].present = 1;
     
-    struct tab_page_entry *tab_entry = (tab_page_entry*) 0x28000; 
+    tab_page_entry *tab_entry = (tab_page_entry*) 0x28000; 
     //inicializo los 1024 elementos de la tabla apuntada por el primer dir
-    for(i=0; i<1024; i++){
+    for(i = 0; i < 1024; i++){
 
 		tab_entry[i].dir_base = i;
 	    tab_entry[i].disponible = 0;
@@ -40,11 +45,7 @@ void mmu_inicializar_dir_kernel() {
 	    tab_entry[i].user = 0;
 	    tab_entry[i].rw = 1;
 	    tab_entry[i].present = 1;
-
 	}
-
-
-
 
 	dir_entry[1].dir_base = 0x30;
     dir_entry[1].disponible = 0;
@@ -58,7 +59,7 @@ void mmu_inicializar_dir_kernel() {
     dir_entry[1].rw = 1;
     dir_entry[1].present = 1;
     
-    struct tab_page_entry *tab_entry2 = (tab_page_entry*) 0x30000; 
+    tab_page_entry *tab_entry2 = (tab_page_entry*) 0x30000; 
     //inicializo los 896 elementos de la tabla apuntada por el primer dir
     for(i=0; i < 1024; i++){
 
@@ -94,10 +95,7 @@ void mmu_inicializar_dir_kernel() {
 		}
 	}
 
-
-
-	for(i=2; i<1024; i++){
-
+	for(i = 2; i < 1024; i++){
 		dir_entry[i].dir_base = 0;
 	    dir_entry[i].disponible = 0;
 	    dir_entry[i].global = 0;
@@ -113,6 +111,55 @@ void mmu_inicializar_dir_kernel() {
 	}
 }
 
+#define PDE_INDEX(virtual)  virtual >> 22
+#define PTE_INDEX(virtual)  (virtual << 10) >> 22
+#define ALIGN(dir) 			dir << 12
+
+void mmu_mapear_pagina(unsigned int virtual, unsigned int cr3, unsigned int fisica){
+	unsigned int pd_index = PDE_INDEX(virtual);
+	unsigned int pt_index = PTE_INDEX(virtual);
+	dir_page_entry *dir_entry = (dir_page_entry*) cr3;
+
+	dir_page_entry pd = dir_entry[pd_index];
+	tab_page_entry *pt;
+	//Ver bit de presente en pd
+	//Si esta en 0, crear una tabla (e inicializar todas sus entradas)
+	//Inicializar la entrada correspondiente
+	if (pd.present == 0)
+	{
+		unsigned int dir = prox_pagina();
+		pt = (tab_page_entry*) dir;
+    	for(i = 0; i < 1024; i++){
+			pt[i].dir_base = 0;
+		    pt[i].disponible = 0;
+		    pt[i].global = 0;
+		    pt[i].page_attribute = 0;
+		    pt[i].dirty = 0;
+		    pt[i].accessed = 0;
+		    pt[i].cache_disable = 0;
+		    pt[i].write_through = 0;
+		    pt[i].user = 0;
+		    pt[i].rw = 1;
+		    pt[i].present = 1;
+		}		
+	}else{
+		pt = (tab_page_entry*) ALIGN(pd.dir_base);
+	}
+
+	tab_page_entry pte = pt[pt_index];
+	pt[i].dir_base = (fisica >> 12);
+	pt[i].disponible = 0;
+	pt[i].global = 0;
+	pt[i].page_attribute = 0;
+	pt[i].dirty = 0;
+	pt[i].accessed = 0;
+	pt[i].cache_disable = 0;
+	pt[i].write_through = 0;
+	pt[i].user = 1;
+	pt[i].rw = 1;
+	pt[i].present = 1;	
+
+}
 
 void mmu_inicializar() {
 }
