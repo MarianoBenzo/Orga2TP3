@@ -14,7 +14,6 @@ unsigned int prox_pagina(){
 }
 
 void mmu_inicializar_dir_kernel() {
-
 	dir_page_entry *dir_entry = (dir_page_entry*) 0x27000;
 	int i;
 
@@ -33,7 +32,6 @@ void mmu_inicializar_dir_kernel() {
     tab_page_entry *tab_entry = (tab_page_entry*) 0x28000; 
     //inicializo los 1024 elementos de la tabla apuntada por el primer dir
     for(i = 0; i < 1024; i++){
-
 		tab_entry[i].dir_base = i;
 	    tab_entry[i].disponible = 0;
 	    tab_entry[i].global = 0;
@@ -61,10 +59,8 @@ void mmu_inicializar_dir_kernel() {
     
     tab_page_entry *tab_entry2 = (tab_page_entry*) 0x30000; 
     //inicializo los 896 elementos de la tabla apuntada por el primer dir
-    for(i=0; i < 1024; i++){
-
+    for(i = 0; i < 1024; i++){
 	    if (i < 896){
-
 			tab_entry2[i].dir_base = i + 1024;
 		    tab_entry2[i].disponible = 0;
 		    tab_entry2[i].global = 0;
@@ -76,10 +72,9 @@ void mmu_inicializar_dir_kernel() {
 		    tab_entry2[i].user = 0;
 		    tab_entry2[i].rw = 1;
 		    tab_entry2[i].present = 1;
-
 		} else
 		{
-
+			//Consultar que hacer con el resto de las entradas
 			tab_entry2[i].dir_base = i + 1024;
 		    tab_entry2[i].disponible = 0;
 		    tab_entry2[i].global = 0;
@@ -91,7 +86,6 @@ void mmu_inicializar_dir_kernel() {
 		    tab_entry2[i].user = 0;
 		    tab_entry2[i].rw = 1;
 		    tab_entry2[i].present = 1;		
-		    
 		}
 	}
 
@@ -107,13 +101,12 @@ void mmu_inicializar_dir_kernel() {
 	    dir_entry[i].user = 0;
 	    dir_entry[i].rw = 0;
 	    dir_entry[i].present = 0;
-
 	}
 }
 
 #define PDE_INDEX(virtual)  virtual >> 22
 #define PTE_INDEX(virtual)  (virtual << 10) >> 22
-#define ALIGN(dir) 			dir << 12
+#define ALIGN(dir) 			(dir << 12)
 
 void mmu_mapear_pagina(unsigned int virtual, unsigned int cr3, unsigned int fisica){
 	unsigned int pd_index = PDE_INDEX(virtual);
@@ -141,24 +134,54 @@ void mmu_mapear_pagina(unsigned int virtual, unsigned int cr3, unsigned int fisi
 		    pt[i].user = 0;
 		    pt[i].rw = 1;
 		    pt[i].present = 1;
-		}		
+		}
+		pd.dir_base = (dir >> 12);
+		pd.user = 1;				// Marcar de usuario?
+		pd.rw = 1;
+		pd.present = 1;
 	}else{
 		pt = (tab_page_entry*) ALIGN(pd.dir_base);
 	}
 
 	tab_page_entry pte = pt[pt_index];
-	pt[i].dir_base = (fisica >> 12);
-	pt[i].disponible = 0;
-	pt[i].global = 0;
-	pt[i].page_attribute = 0;
-	pt[i].dirty = 0;
-	pt[i].accessed = 0;
-	pt[i].cache_disable = 0;
-	pt[i].write_through = 0;
-	pt[i].user = 1;
-	pt[i].rw = 1;
-	pt[i].present = 1;	
+	pte.dir_base = (fisica >> 12);
+	pte.disponible = 0;
+	pte.global = 0;
+	pte.page_attribute = 0;
+	pte.dirty = 0;
+	pte.accessed = 0;
+	pte.cache_disable = 0;
+	pte.write_through = 0;
+	pte.user = 1;
+	pte.rw = 1;
+	pte.present = 1;	
+}
 
+void mmu_unmapear_pagina(unsigned int virtual, unsigned int cr3){
+	unsigned int pd_index = PDE_INDEX(virtual);
+	unsigned int pt_index = PTE_INDEX(virtual);
+	dir_page_entry *dir_entry = (dir_page_entry*) cr3;
+
+	dir_page_entry pd = dir_entry[pd_index];
+	tab_page_entry *pt = (tab_page_entry*) ALIGN(pd.dir_base);
+	tab_page_entry pte = pt[pt_index];
+
+	pte.dir_base = 0;
+	pte.disponible = 0;
+	pte.global = 0;
+	pte.page_attribute = 0;
+	pte.dirty = 0;
+	pte.accessed = 0;
+	pte.cache_disable = 0;
+	pte.write_through = 0;
+	pte.user = 1;
+	pte.rw = 1;
+	pte.present = 1;			//Hay que mantener el bit de presente? Qué implica?
+
+	pd.dir_base = 0;			
+	pd.user = 0;				//Hay que limpiar los flags de usuario y r/w?
+	pd.rw = 0;
+	pd.present = 0;
 }
 
 void mmu_inicializar() {

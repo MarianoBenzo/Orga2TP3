@@ -20,8 +20,8 @@ typedef struct dir_page_entry {
     unsigned char   ignored:1;
     unsigned char   page_size:1;
     unsigned char   global:1;
-    unsigned char  disponible:3;
-    unsigned int  dir_base:20;
+    unsigned char   disponible:3;
+    unsigned int    dir_base:20;
 } __attribute__((__packed__)) dir_page_entry;
 
 typedef struct tab_page_entry {
@@ -34,12 +34,14 @@ typedef struct tab_page_entry {
     unsigned char   dirty:1;
     unsigned char   page_attribute:1;
     unsigned char   global:1;
-    unsigned char  disponible:3;
-    unsigned int  dir_base:20;
+    unsigned char   disponible:3;
+    unsigned int    dir_base:20;
 } __attribute__((__packed__)) tab_page_entry;
 
 
 void mmu_inicializar_dir_kernel();
+
+void mmu_inicializar();
 
 
 #endif	/* !__MMU_H__ */
