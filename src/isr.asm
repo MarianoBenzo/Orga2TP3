@@ -13,6 +13,7 @@ BITS 32
 extern fin_intr_pic1
 
 extern atender_int
+extern int_teclado
 
 extern screen_modo_estado
 
@@ -87,12 +88,6 @@ _isr32:
 
     iret
 
-_isr50:
-    iret
-
-_isr66:
-    iret
-
 screen_proximo_reloj:
     call proximo_reloj
     ret
@@ -100,29 +95,37 @@ screen_proximo_reloj:
 ;; Rutina de atención del TECLADO
 ;; -------------------------------------------------------------------------- ;;
 _isr33:
-    pushad
-    call  fin_intr_pic1
+    push eax
+    call fin_intr_pic1
     
     in al, 0x60
-    cmp al, 0x32
-    jne .estado
-    call screen_modo_mapa
-    .estado:
-        cmp al, 0x12
-        jne .fin
-        call screen_modo_estado
-    .numero:
-        cmp al, 0x0a
-        jna .fin
-        mov ebx, eax
-        dec ebx
-        imprimir_texto_mp ebx, 1, 0x0f, 0, 79 ;Terminar
+    push al
+    call int_teclado
+    ; cmp al, 0x32
+    ; jne .estado
+    ; call screen_modo_mapa
+    ; .estado:
+    ;     cmp al, 0x12
+    ;     jne .fin
+    ;     call screen_modo_estado
+    ; .numero:
+    ;     cmp al, 0x0a
+    ;     jna .fin
+    ;     mov ebx, eax
+    ;     dec ebx
+    ;     imprimir_texto_mp ebx, 1, 0x0f, 0, 79 ;Terminar
     .fin:
-        popad
+        pop eax
         iret 
 ;;
 ;; Rutinas de atención de las SYSCALLS
 ;; -------------------------------------------------------------------------- ;;
+
+_isr50:
+    iret
+
+_isr66:
+    iret
 
 ;; Funciones Auxiliares
 ;; -------------------------------------------------------------------------- ;;

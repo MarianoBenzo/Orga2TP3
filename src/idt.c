@@ -26,6 +26,24 @@ void atender_int(int n) {
         print("(Division por cero)", 0, 1, C_FG_GREEN);
 }
 
+void int_teclado(int n){
+    int makeCode = n - 0x80;
+    if(makeCode < 0x0C && makeCode > 0x01)          // es un numero
+    {
+        int numero = makeCode;
+        if (numero == 0x0B)
+            numero = 0;
+        else
+            numero--;
+        print_int(numero, VIDEO_COLS - 1, 0, C_FG_WHITE + C_BG_BLACK);
+    }
+    if(makeCode == 0x12)        // E
+        screen_modo_estado();
+
+    if(makeCode == 0x32)        // M
+        screen_modo_mapa();
+}
+
 /*
     La siguiente es una macro de EJEMPLO para ayudar a armar entradas de
     interrupciones. Para usar, descomentar y completar CORRECTAMENTE los
