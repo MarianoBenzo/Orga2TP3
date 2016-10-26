@@ -19,7 +19,6 @@ idt_descriptor IDT_DESC = {
 
 void atender_int(int n) {
     unsigned short attr = C_FG_RED;
-
     limpiar_pantalla();
     print("Se genero la interrupcion ", 0, 0, attr);
     print_int(n, 26, 0, C_FG_WHITE);
@@ -70,4 +69,10 @@ void idt_inicializar() {
     IDT_ENTRY(17);
     IDT_ENTRY(18);
     IDT_ENTRY(19);
+
+    IDT_ENTRY(32);      // Reloj
+    IDT_ENTRY(33);      // Teclado
+
+    IDT_ENTRY(50);
+    IDT_ENTRY(66);
 }

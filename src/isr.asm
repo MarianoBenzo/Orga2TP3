@@ -14,10 +14,20 @@ extern fin_intr_pic1
 
 extern atender_int
 
+extern screen_modo_estado
+
+extern screen_modo_mapa
+
 
 ;;
 ;; Definición de MACROS
 ;; -------------------------------------------------------------------------- ;;
+
+global _isr32
+global _isr33
+global _isr50
+global _isr66
+
 
 %macro ISR 1
 global _isr%1
@@ -71,11 +81,43 @@ ISR 19
 ;;
 ;; Rutina de atención del RELOJ
 ;; -------------------------------------------------------------------------- ;;
+_isr32:
+    call fin_intr_pic1
+    call screen_proximo_reloj
 
+    iret
+
+_isr50:
+    iret
+
+_isr66:
+    iret
+
+screen_proximo_reloj:
+    call proximo_reloj
+    ret
 ;;
 ;; Rutina de atención del TECLADO
 ;; -------------------------------------------------------------------------- ;;
-
+_isr33:
+    pushad
+    call  fin_intr_pic1
+    
+    in al, 0x60
+    cmp al, 0x32
+    jne .estado
+    call screen_modo_mapa
+    .estado:
+        cmp al, 0x12
+        jne .numero
+        call screen_modo_estado
+    .numero:
+        mov ebx, eax
+        dec eax
+        imprimir_texto_mp eax, 1, 0x0f, 0, 79 ;Terminar
+    .fin:
+        popad
+        iret 
 ;;
 ;; Rutinas de atención de las SYSCALLS
 ;; -------------------------------------------------------------------------- ;;
@@ -86,7 +128,7 @@ proximo_reloj:
     pushad
 
     inc DWORD [reloj_numero]
-    mov ebx, [reloj]
+    mov ebx, [reloj_numero]
     cmp ebx, 0x4
     jl .ok
         mov DWORD [reloj_numero], 0x0

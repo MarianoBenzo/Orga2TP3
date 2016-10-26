@@ -12,6 +12,7 @@ extern screen_modo_mapa
 extern screen_modo_estado
 
 extern mmu_inicializar_dir_kernel 
+extern mmu_inicializar_dir_tarea
 ;; GDT
 extern GDT_DESC
 
@@ -76,7 +77,7 @@ modoProtegido:
     mov ax, 0x98
     mov ss, ax
     mov ds, ax
-    mov ax, 0xb0
+    mov ax, 0xB0
     mov es, ax
     ; acomodar los segmentos
 
@@ -102,6 +103,11 @@ modoProtegido:
     or eax, 0x80000000
     mov CR0, eax
 
+    ;push 0x100000
+    ;push 1
+    ;call mmu_inicializar_dir_tarea
+    ;mov CR3, eax
+
     ; inicializar tarea idle
 
     ; inicializar todas las tsss
@@ -113,11 +119,9 @@ modoProtegido:
     ; inicializar la IDT
     call idt_inicializar
     LIDT [IDT_DESC]
-
-
-    ;mov eax, 4
-    ;mov ecx, 0
-    ;div ecx
+    call resetear_pic
+    call habilitar_pic
+    sti
 
     ; configurar controlador de interrupciones
 
