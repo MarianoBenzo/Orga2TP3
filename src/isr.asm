@@ -109,12 +109,14 @@ _isr33:
     call screen_modo_mapa
     .estado:
         cmp al, 0x12
-        jne .numero
+        jne .fin
         call screen_modo_estado
     .numero:
+        cmp al, 0x0a
+        jna .fin
         mov ebx, eax
-        dec eax
-        imprimir_texto_mp eax, 1, 0x0f, 0, 79 ;Terminar
+        dec ebx
+        imprimir_texto_mp ebx, 1, 0x0f, 0, 79 ;Terminar
     .fin:
         popad
         iret 
