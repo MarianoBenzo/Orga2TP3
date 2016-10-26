@@ -98,25 +98,14 @@ _isr33:
     push eax
     call fin_intr_pic1
     
+    xor eax, eax
     in al, 0x60
-    push al
+    push eax
     call int_teclado
-    ; cmp al, 0x32
-    ; jne .estado
-    ; call screen_modo_mapa
-    ; .estado:
-    ;     cmp al, 0x12
-    ;     jne .fin
-    ;     call screen_modo_estado
-    ; .numero:
-    ;     cmp al, 0x0a
-    ;     jna .fin
-    ;     mov ebx, eax
-    ;     dec ebx
-    ;     imprimir_texto_mp ebx, 1, 0x0f, 0, 79 ;Terminar
-    .fin:
-        pop eax
-        iret 
+    
+    pop eax
+    pop eax
+    iret 
 ;;
 ;; Rutinas de atención de las SYSCALLS
 ;; -------------------------------------------------------------------------- ;;
