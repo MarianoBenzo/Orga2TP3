@@ -111,9 +111,17 @@ _isr33:
 ;; -------------------------------------------------------------------------- ;;
 
 _isr50:
+    push eax
+    call fin_intr_pic1
+    mov eax, 0x42
+    pop eax
     iret
 
 _isr66:
+    push eax
+    call fin_intr_pic1
+    mov eax, 0x42
+    pop eax
     iret
 
 ;; Funciones Auxiliares
