@@ -5,6 +5,7 @@
   definicion de las rutinas de atencion de interrupciones
 */
 
+
 #include "idt.h"
 #include "isr.h"
 #include "colors.h"
@@ -29,13 +30,13 @@ void atender_int(int n) {
 void int_teclado(int n){
     int makeCode = n - 0x80;
     if(makeCode < 0x0C && makeCode > 0x01)          // es un numero
-    {
+    {   
         int numero = makeCode;
         if (numero == 0x0B)
             numero = 0;
         else
             numero--;
-        print_int(numero, VIDEO_COLS - 1, 0, C_FG_WHITE + C_BG_BLACK);
+        print_int(numero, VIDEO_COLS - 1, 0, C_FG_WHITE + (numero%8 << 4));
     }
     if(makeCode == 0x12)        // E
         screen_modo_estado();
