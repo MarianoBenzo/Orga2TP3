@@ -72,15 +72,15 @@ start:
 BITS 32
 modoProtegido:
     xor eax, eax
-    ; hay que setear la pila del kernel en la direccion 0x27000
     ; ss describe el segmento donde esta la pila (kernel_data)
+    ; acomodar los segmentos
     mov ax, 0x98
     mov ss, ax
     mov ds, ax
+    mov gs, ax
+    mov fs, ax
     mov ax, 0xB0
     mov es, ax
-    ; acomodar los segmentos
-
     ; setear la pila
     mov esp, 0x27000
 

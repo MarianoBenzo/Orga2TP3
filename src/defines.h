@@ -27,11 +27,30 @@
 /* Indices en la gdt */
 /* -------------------------------------------------------------------------- */
 #define GDT_IDX_NULL_DESC           0
-#define kernel_code 18
-#define kernel_data 19
-#define user_code 20
-#define user_data 21
-#define pantalla 22
+#define kernel_code 				18
+#define kernel_data 				19
+#define user_code 					20
+#define user_data 					21
+#define pantalla 					22
+#define indice_idle					23
+#define indice_inicial				24
+#define tarea_1						25
+#define tarea_1_bandera 			26
+#define tarea_2						27
+#define tarea_2_bandera 			28
+#define tarea_3						29
+#define tarea_3_bandera				30
+#define tarea_4						31
+#define tarea_4_bandera				32
+#define tarea_5						33
+#define tarea_5_bandera				34
+#define tarea_6						35
+#define tarea_6_bandera				36
+#define tarea_7						37
+#define tarea_7_bandera				38
+#define tarea_8						39
+#define tarea_8_bandera				40
+
 
 /* Direcciones de memoria */
 /* -------------------------------------------------------------------------- */

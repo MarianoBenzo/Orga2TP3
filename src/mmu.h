@@ -56,6 +56,8 @@ unsigned int mmu_inicializar_dir_tarea(unsigned char tarea, unsigned int fisica)
 
 void mmu_inicializar();
 
+unsigned int prox_pagina_pila();
+
 void mmu_mapear_pagina(unsigned int virtual, unsigned int cr3, unsigned int fisica, unsigned char rw, unsigned char user);
 
 void mmu_unmapear_pagina(unsigned int virtual, unsigned int cr3);

@@ -17,8 +17,15 @@ unsigned int prox_pagina(){
 	return p;
 }
 
+unsigned int prox_pagina_pila(){
+	p += 0x1000;
+	int n = p + 0xFFF;
+	return n;
+}
+
 void mmu_inicializar_dir_kernel() {
-	dir_page_entry *dir_entry = (dir_page_entry*) 0x27000;
+	int dir_directory = 0x27000;
+	dir_page_entry *dir_entry = (dir_page_entry*) dir_directory;
 	int i;
 
 	dir_entry[0].dir_base = 0x28;
@@ -105,6 +112,8 @@ void mmu_inicializar_dir_kernel() {
 	    dir_entry[i].rw = 0;
 	    dir_entry[i].present = 0;
 	}
+
+	mmu_mapear_pagina(0x40000000, dir_directory, 0x20000, 0, 0);			// pag codigo idle
 
 	tlbflush();
 }
@@ -200,8 +209,8 @@ unsigned int mmu_inicializar_dir_tarea(unsigned char tarea, unsigned int fisica)
 	    dir_entry[i].present = 0;
 	}
 
-	mmu_mapear_pagina(0x40000000, dir_directory, fisica, 1, 1);			// pag codigo 1
-	mmu_mapear_pagina(0x40001000, dir_directory, fisica + 4096, 1, 1); 	// pag codigo 2
+	mmu_mapear_pagina(0x40000000, dir_directory, fisica, 0, 1);			// pag codigo 1
+	mmu_mapear_pagina(0x40001000, dir_directory, fisica + 4096, 0, 1); 	// pag codigo 2
 	mmu_mapear_pagina(0x40002000, dir_directory, 0, 0, 1);				// ancla
 
 	unsigned int dir_tarea = dir_tareas[tarea];
