@@ -8,6 +8,10 @@
 #include "tss.h"
 #include "gdt.h"
 #include "defines.h"
+#include "mmu.h"
+
+#define base23(direccion) direccion >> 16
+#define base31(direccion) direccion >> 24
 
 tss tarea_inicial;
 tss tarea_idle;
@@ -17,13 +21,13 @@ tss tss_banderas[CANT_TAREAS];
 
 void tss_inicializar() {
 	//COMPLETAR DIR BASE EN GDT
-	gdt[indice_inicial].base_0_15 = &(tarea_inicial);
-	gdt[indice_inicial].base_23_16 = (&(tarea_inicial) >> 16);
-	gdt[indice_inicial].base_31_24 = (&(tarea_inicial) >> 24);
+	gdt[indice_inicial].base_0_15 = (unsigned int) &(tarea_inicial);
+	gdt[indice_inicial].base_23_16 =(unsigned int) base23(&(tarea_inicial)); //(&(tarea_inicial) >> 16);
+	gdt[indice_inicial].base_31_24 = (unsigned int) base31(&(tarea_inicial));  //(&(tarea_inicial) >> 24);
 
-	gdt[indice_idle].base_0_15 = &(tarea_idle);
-	gdt[indice_idle].base_23_16 = (&(tarea_idle) >> 16);
-	gdt[indice_idle].base_23_16 = (&(tarea_idle) >> 24);
+	gdt[indice_idle].base_0_15 = (unsigned int) &(tarea_idle);
+	gdt[indice_idle].base_23_16 = (unsigned int) base23(&(tarea_idle)); // (&(tarea_idle) >> 16);
+	gdt[indice_idle].base_23_16 = (unsigned int) base31(&(tarea_idle)); //(&(tarea_idle) >> 24);
 
 	tarea_inicial.eip    = 0x00;
 	tarea_inicial.ebp    = 0x00;
@@ -31,11 +35,11 @@ void tss_inicializar() {
 	tarea_inicial.ss     = 0x00;
 	tarea_inicial.ds     = 0x00;
 	tarea_inicial.fs     = 0x00;
-	tarea_inciial.gs     = 0x00;
-	tarea_inciial.es     = 0x00;
-	tarea_inciial.cs 	 = 0x00;
-	tarea_inciial.cr3    = 0x00;
-	tarea_inciial.eflags = 0x00;
+	tarea_inicial.gs     = 0x00;
+	tarea_inicial.es     = 0x00;
+	tarea_inicial.cs 	 = 0x00;
+	tarea_inicial.cr3    = 0x00;
+	tarea_inicial.eflags = 0x00;
 
 	tarea_idle.eip    = 0x40000000;
 	tarea_idle.ebp    = 0x2A000;
