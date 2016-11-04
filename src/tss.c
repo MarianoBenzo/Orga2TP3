@@ -13,6 +13,16 @@
 #define base23(direccion) direccion >> 16
 #define base31(direccion) direccion >> 24
 
+#define GDT_NAVIOS(indice)																		\
+  gdt[indice].base_0_15  = (unsigned short) ((unsigned int) &(tss_navios[indice])); 			\
+  gdt[indice].base_23_16 = (unsigned char)  ((unsigned int) base23(&(tss_navios[indice])));		\
+  gdt[indice].base_31_24 = (unsigned char)  ((unsigned int) base31(&(tss_navios[indice])));	
+
+#define GDT_BANDERAS(indice)																	\
+  gdt[indice].base_0_15  = (unsigned short) ((unsigned int) &(tss_banderas[indice])); 			\
+  gdt[indice].base_23_16 = (unsigned char)  ((unsigned int) base23(&(tss_banderas[indice])));	\
+  gdt[indice].base_31_24 = (unsigned char)  ((unsigned int) base31(&(tss_banderas[indice])));	
+
 tss tarea_inicial;
 tss tarea_idle;
 
@@ -21,13 +31,31 @@ tss tss_banderas[CANT_TAREAS];
 
 void tss_inicializar() {
 	//COMPLETAR DIR BASE EN GDT
-	gdt[indice_inicial].base_0_15 = (unsigned int) &(tarea_inicial);
-	gdt[indice_inicial].base_23_16 =(unsigned int) base23(&(tarea_inicial)); //(&(tarea_inicial) >> 16);
+	gdt[indice_inicial].base_0_15  = (unsigned int) &(tarea_inicial);
+	gdt[indice_inicial].base_23_16 = (unsigned int) base23(&(tarea_inicial)); //(&(tarea_inicial) >> 16);
 	gdt[indice_inicial].base_31_24 = (unsigned int) base31(&(tarea_inicial));  //(&(tarea_inicial) >> 24);
 
 	gdt[indice_idle].base_0_15 = (unsigned int) &(tarea_idle);
 	gdt[indice_idle].base_23_16 = (unsigned int) base23(&(tarea_idle)); // (&(tarea_idle) >> 16);
-	gdt[indice_idle].base_23_16 = (unsigned int) base31(&(tarea_idle)); //(&(tarea_idle) >> 24);
+	gdt[indice_idle].base_31_24 = (unsigned int) base31(&(tarea_idle)); //(&(tarea_idle) >> 24);
+
+	GDT_NAVIOS(tarea_1)
+	GDT_NAVIOS(tarea_2)
+	GDT_NAVIOS(tarea_3)
+	GDT_NAVIOS(tarea_4)
+	GDT_NAVIOS(tarea_5)
+	GDT_NAVIOS(tarea_6)
+	GDT_NAVIOS(tarea_7)
+	GDT_NAVIOS(tarea_8)
+
+	GDT_BANDERAS(tarea_1_bandera)
+	GDT_BANDERAS(tarea_2_bandera)
+	GDT_BANDERAS(tarea_3_bandera)
+	GDT_BANDERAS(tarea_4_bandera)
+	GDT_BANDERAS(tarea_5_bandera)
+	GDT_BANDERAS(tarea_6_bandera)
+	GDT_BANDERAS(tarea_7_bandera)
+	GDT_BANDERAS(tarea_8_bandera)
 
 	tarea_inicial.eip    = 0x00;
 	tarea_inicial.ebp    = 0x00;

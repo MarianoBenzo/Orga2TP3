@@ -103,11 +103,6 @@ modoProtegido:
     or eax, 0x80000000
     mov CR0, eax
 
-    ;push 0x100000
-    ;push 1
-    ;call mmu_inicializar_dir_tarea
-    ;mov CR3, eax
-
     ; inicializar tarea idle
 
     ; inicializar todas las tsss

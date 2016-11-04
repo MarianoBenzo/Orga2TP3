@@ -8,19 +8,6 @@
 #ifndef __MMU_H__
 #define __MMU_H__
 
-unsigned int p = 0x30000;
-
-unsigned int dir_tareas[9] = {
-	[1] = 0x10000,
-	[2] = 0x12000,
-	[3] = 0x14000,
-	[4] = 0x16000,
-	[5] = 0x18000,
-	[6] = 0x1A000,
-	[7] = 0x1C000,
-	[8] = 0x1E000,
-};
-
 typedef struct dir_page_entry {
     unsigned char   present:1;
     unsigned char   rw:1;
