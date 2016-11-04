@@ -30,14 +30,13 @@ tss tss_navios[CANT_TAREAS];
 tss tss_banderas[CANT_TAREAS];
 
 void tss_inicializar() {
-	//COMPLETAR DIR BASE EN GDT
-	gdt[indice_inicial].base_0_15  = (unsigned int) &(tarea_inicial);
-	gdt[indice_inicial].base_23_16 = (unsigned int) base23(&(tarea_inicial)); //(&(tarea_inicial) >> 16);
-	gdt[indice_inicial].base_31_24 = (unsigned int) base31(&(tarea_inicial));  //(&(tarea_inicial) >> 24);
+	gdt[indice_inicial].base_0_15  = (unsigned short) ((unsigned int) &(tarea_inicial));
+	gdt[indice_inicial].base_23_16 = (unsigned char)  ((unsigned int) base23(&(tarea_inicial)));
+	gdt[indice_inicial].base_31_24 = (unsigned char)  ((unsigned int) base31(&(tarea_inicial))); 
 
-	gdt[indice_idle].base_0_15 = (unsigned int) &(tarea_idle);
-	gdt[indice_idle].base_23_16 = (unsigned int) base23(&(tarea_idle)); // (&(tarea_idle) >> 16);
-	gdt[indice_idle].base_31_24 = (unsigned int) base31(&(tarea_idle)); //(&(tarea_idle) >> 24);
+	gdt[indice_idle].base_0_15  = (unsigned short) ((unsigned int) &(tarea_idle));
+	gdt[indice_idle].base_23_16 = (unsigned char)  ((unsigned int) base23(&(tarea_idle)));
+	gdt[indice_idle].base_31_24 = (unsigned char)  ((unsigned int) base31(&(tarea_idle))); 
 
 	GDT_NAVIOS(tarea_1)
 	GDT_NAVIOS(tarea_2)

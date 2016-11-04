@@ -11,8 +11,10 @@ extern screen_pintar_pantalla
 extern screen_modo_mapa
 extern screen_modo_estado
 
-extern mmu_inicializar_dir_kernel 
-extern mmu_inicializar_dir_tarea
+extern mmu_inicializar_dir_kernel
+
+extern tss_inicializar
+
 ;; GDT
 extern GDT_DESC
 
@@ -86,17 +88,16 @@ modoProtegido:
 
     ; pintar pantalla, todos los colores, que bonito!
     call screen_pintar_pantalla
-    ;call screen_modo_mapa
-    call screen_modo_estado
 
     ; inicializar el manejador de memoria
+    call mmu_inicializar_dir_kernel
 
     ; inicializar el directorio de paginas
     mov eax, 0x27000
     mov CR3, eax
-    call mmu_inicializar_dir_kernel
 
     ; inicializar memoria de tareas
+    ; esto lo hacemos al mismo tiempo de inicializar las tss
 
     ; habilitar paginacion
     mov eax, CR0
@@ -104,21 +105,21 @@ modoProtegido:
     mov CR0, eax
 
     ; inicializar tarea idle
-
     ; inicializar todas las tsss
-
     ; inicializar entradas de la gdt de las tsss
+    xchg bx, bx
+    call tss_inicializar
 
     ; inicializar el scheduler
     
     ; inicializar la IDT
     call idt_inicializar
     LIDT [IDT_DESC]
+
+    ; configurar controlador de interrupciones
     call resetear_pic
     call habilitar_pic
     sti
-
-    ; configurar controlador de interrupciones
 
     ; cargar la tarea inicial
 
