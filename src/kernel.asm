@@ -49,8 +49,6 @@ start:
     ; Deshabilitar interrupciones
     cli
 
-    ; xchg bx, bx
-
     ; Imprimir mensaje de bienvenida
     imprimir_texto_mr iniciando_mr_msg, iniciando_mr_len, 0x07, 0, 0
 
@@ -60,7 +58,7 @@ start:
 
     ; cargar la GDT
     ; la estructura gdt_descriptor contiene los datos necesarios para cargar en GDTR (en orden)
-    LGDT [GDT_DESC]      
+    lgdt [GDT_DESC]      
 
     ; setear el bit PE del registro CR0
     mov eax, CR0
@@ -107,7 +105,6 @@ modoProtegido:
     ; inicializar tarea idle
     ; inicializar todas las tsss
     ; inicializar entradas de la gdt de las tsss
-    xchg bx, bx
     call tss_inicializar
 
     ; inicializar el scheduler
@@ -122,8 +119,12 @@ modoProtegido:
     sti
 
     ; cargar la tarea inicial
-
-    ; saltar a la primer tarea
+    ; 0xC0 = 11000 000, descriptor 24 de la GDT (tarea_inicial)
+    mov eax, 0xC0
+    ltr ax
+    ; saltar a la primera tarea
+    ; 0xB8 = 10111 000, descriptor 23 de la GDT (tarea_idle)
+    jmp 0xB8:0
 
     ; Ciclar infinitamente (por si algo sale mal...)
     mov eax, 0xFFFF
