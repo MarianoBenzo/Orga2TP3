@@ -16,8 +16,9 @@ extern atender_int
 extern int_teclado
 
 extern screen_modo_estado
-
 extern screen_modo_mapa
+
+extern mmu_mapear_pagina
 
 
 ;;
@@ -111,11 +112,57 @@ _isr33:
 ;; -------------------------------------------------------------------------- ;;
 
 _isr50:
-    push eax
+    pushad
     call fin_intr_pic1
-    mov eax, 0x42
-    pop eax
-    iret
+
+    cmp eax, 0x923
+    je .anclar
+    cmp eax, 0x83A
+    je .misilazo
+    cmp eax, 0xAEF
+    je .navegar
+    jmp .fin
+
+    .anclar:
+        ; el CR3 contiene el directorio de paginas del kernel o de la tarea?
+        ; como obtengo el CR3 de la tarea?
+        mov eax, CR3
+        push 0x00               ; parametro "user"
+        push 0x00               ; parametro "rw"
+        push ebx                ; parametro "fisica"
+        push eax                ; parametro "cr3"
+        push 0x40002000         ; parametro "virtual"
+        call mmu_mapear_pagina
+        pop ebx
+        pop ebx
+        pop ebx
+        pop eax
+        pop eax
+        jmp .fin
+    .misilazo:
+        ; EBX = direccion fisica donde se disparara el misil
+        ; ECX = direccion relativa al espacio de la tarea donde se encuentra el misil
+        ; que cambia que sea relativa o fisica? como accedo a la dir. fisica a partir de la relativa?
+        xor eax, eax
+        mov edx, ecx
+        mov ecx, 0x61   ; 0x61 = 97
+        .ciclo:
+            mov byte eax, [edx]
+            mov byte [ebx], eax
+            inc edx
+            inc eax
+            loop .ciclo
+        jmp .fin
+    .navegar:
+        ; EBX/ECX = direccion fisica del area de usuario para la primera/segunda pagina de codigo
+        ; simplemente hay que copiarlas devuelta de la dir. original (0x10000, para la tarea 1) y remapearlas?
+        ; como se en que tarea estoy parado?
+
+    .fin:
+        ; como hago para que el scheduler se encargue de volver a la tarea idle?
+        ; lo hago desde aca?
+        popad
+        iret
 
 _isr66:
     push eax

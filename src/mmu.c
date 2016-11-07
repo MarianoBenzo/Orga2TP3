@@ -222,8 +222,8 @@ unsigned int mmu_inicializar_dir_tarea(unsigned char tarea, unsigned int fisica)
 	    dir_entry[i].present = 0;
 	}
 
-	mmu_mapear_pagina(0x40000000, dir_directory, fisica, 0, 1);			// pag codigo 1
-	mmu_mapear_pagina(0x40001000, dir_directory, fisica + 4096, 0, 1); 	// pag codigo 2
+	mmu_mapear_pagina(0x40000000, dir_directory, fisica, 1, 1);			// pag codigo 1
+	mmu_mapear_pagina(0x40001000, dir_directory, fisica + 4096, 1, 1); 	// pag codigo 2
 	mmu_mapear_pagina(0x40002000, dir_directory, 0, 0, 1);				// ancla
 
 	unsigned int dir_tarea = dir_tareas[tarea];

@@ -77,6 +77,7 @@ unsigned short sched_proxima_bandera(){
 	char current = currFlag;
 	// Si currFlag es 7 u 8, significa que ya terminé de ejecutar todas las banderas
 	if (currFlag >= CANT_TAREAS - 1){
+		cicloBandera = 0;
 		modoBandera = 0;
 		currFlag = -1;
 	}
@@ -86,3 +87,4 @@ unsigned short sched_proxima_bandera(){
 	else
 		return flags[current];
 }
+
