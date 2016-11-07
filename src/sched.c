@@ -8,19 +8,18 @@
 #include "sched.h"
 #include "defines.h"
 
-const unsigned char task_idle = (indice_idle << 3)
+const unsigned char task_idle = (indice_idle << 3);
 // Arreglos con los selectores de segmento en la GDT + privilegios
 unsigned short tasks[CANT_TAREAS];					
 unsigned short flags[CANT_TAREAS];
 // Respectivos indices a cada arreglo
-char currTask;
-unsigned char currFlag;
+int currTask;
+int currFlag;
 // Contador y booleano para controlar la ejecucion de banderas
 unsigned char modoBandera;
 unsigned char cicloBandera;
 
 void sched_inicializar() {
-	int i;
 	// Al ejecutar la funcion bandera, depende del contexto, entonces cuando se ejecuta otra bandera hay que hacer un salto de tarea?
 	// Esto significa que el scheduler corre en el contexto de la tarea, o sea usuario
 	// Cómo hace para saltar a Idle si está en usuario, o para correr la int del reloj? Tiene que ser root?
@@ -61,7 +60,7 @@ unsigned short sched_proximo_indice() {
 	while (tasks[currTask] == 0 && j < CANT_TAREAS){
 		currTask++;
 		if (currTask == CANT_TAREAS)
-			currTask == 0;
+			currTask = 0;
 		j++;
 	}
 
@@ -74,11 +73,11 @@ unsigned short sched_proxima_bandera(){
 	while (flags[currFlag] == 0 && currFlag < CANT_TAREAS)
 		currFlag++;
 
-	char current = currFlag;
+	int current = currFlag;
 	// Si currFlag es 7 u 8, significa que ya terminé de ejecutar todas las banderas
 	if (currFlag >= CANT_TAREAS - 1){
 		cicloBandera = 0;
-		modoBandera = 0;
+		modoBandera = FALSE;
 		currFlag = -1;
 	}
 
@@ -88,3 +87,14 @@ unsigned short sched_proxima_bandera(){
 		return flags[current];
 }
 
+unsigned short proximo_indice(){
+	// Como hago para saber si estoy ejecutando una bandera y tengo que matarla?
+	if (modoBandera)
+		return sched_proxima_bandera();
+	else{
+		cicloBandera++;
+		if (cicloBandera == 3)
+			modoBandera = TRUE;			// En el prox tick se ejecuta sched_proxima_bandera()
+		return sched_proximo_indice();
+	}
+}

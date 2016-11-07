@@ -147,8 +147,8 @@ _isr50:
         mov edx, ecx
         mov ecx, 0x61   ; 0x61 = 97
         .ciclo:
-            mov byte eax, [edx]
-            mov byte [ebx], eax
+            mov al, [edx]
+            mov [ebx], al
             inc edx
             inc eax
             loop .ciclo
@@ -165,10 +165,9 @@ _isr50:
         iret
 
 _isr66:
-    push eax
     call fin_intr_pic1
-    mov eax, 0x42
-    pop eax
+    jmp 0xB8:0x00       ; tarea_idle
+    ; hace falta hacer algo mas?
     iret
 
 ;; Funciones Auxiliares
