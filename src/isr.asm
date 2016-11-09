@@ -40,16 +40,30 @@ global _isrx66
 global _isr%1
 
 _isr%1:
-.loopear:
-	push %1
+    push eflags
+    push ss
+    push gs
+    push fs
+    push es
+    push ds
+    push cs
+    push cr4
+    push cr3
+    push cr2
+    push cr0
+    push eip
+    push esp
+    push ebp
+    push edi
+    push esi
+    push edx
+    push ecx
+    push ebx
+    push eax
+    push %1
 	call atender_int
 
-    ; To Infinity And Beyond!!
-    mov eax, 0xFFF2
-    mov ebx, 0xFFF2
-    mov ecx, 0xFFF2
-    mov edx, 0xFFF2
-    jmp $
+    jmp 0xB8:0x00   ; tarea_idle
 %endmacro
 
 

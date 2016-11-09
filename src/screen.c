@@ -18,7 +18,7 @@ void asignar_dir(unsigned int tarea, unsigned int dir, unsigned char nro_pag){
     //Actualizo la pantalla de estado
     unsigned char columna = 6 + (nro_pag - 1) * 14;
     unsigned char fila = 16 + tarea;
-    print_hex(dir, 8, columna, fila, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+    print_hex(dir, 8, columna, fila, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO, 1);
 
     //Si ya estaba dibujada en el mapa, la borro
     ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_MAPA;
@@ -231,7 +231,7 @@ void print(const char * text, unsigned int x, unsigned int y, unsigned short att
     }
 }
 
-void print_hex(unsigned int numero, int size, unsigned int x, unsigned int y, unsigned short attr, unsigned int dir) {
+void print_hex(unsigned int numero, int size, unsigned int x, unsigned int y, unsigned short attr, unsigned int dir, unsigned char ox) {
     ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) dir;
     int i;
     char hexa[8];
@@ -244,8 +244,10 @@ void print_hex(unsigned int numero, int size, unsigned int x, unsigned int y, un
     hexa[5] = letras[ ( numero & 0x00F00000 ) >> 20 ];
     hexa[6] = letras[ ( numero & 0x0F000000 ) >> 24 ];
     hexa[7] = letras[ ( numero & 0xF0000000 ) >> 28 ];
-    print("0x", x, y, attr, dir);
-    x += 2;
+    if (ox){
+        print("0x", x, y, attr, dir);
+        x += 2;
+    }
     for(i = 0; i < size; i++) {
         p[y][x + size - i - 1].c = hexa[i];
         p[y][x + size - i - 1].a = attr;

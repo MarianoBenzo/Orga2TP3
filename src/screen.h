@@ -31,7 +31,7 @@ coordenada coordenadas(unsigned int dir);
 
 void pintar(ca* p, unsigned char a, unsigned char c);
 void print(const char * text, unsigned int x, unsigned int y, unsigned short attr, unsigned int dir);
-void print_hex(unsigned int numero, int size, unsigned int x, unsigned int y, unsigned short attr, unsigned int dir);
+void print_hex(unsigned int numero, int size, unsigned int x, unsigned int y, unsigned short attr, unsigned int dir, unsigned char ox);
 void print_int(unsigned int n, unsigned int x, unsigned int y, unsigned short attr, unsigned int dir);
 
 void limpiar_pantalla();

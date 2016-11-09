@@ -21,16 +21,85 @@ idt_descriptor IDT_DESC = {
     (unsigned int) &idt
 };
 
-void atender_int(int n) {
-    unsigned short attr = C_FG_RED;
-    limpiar_pantalla();
-    print("Se genero la interrupcion ", 0, 0, attr, 0xB8000);
+void atender_int(int n, int eax, int ebx, int ecx, int edx, int esi, int edi, int ebp, int esp, int eip, int cr0, int cr2, int cr3, int cr4, int cs, int ds, int es, int fs, int gs, int ss, int eflags) {
     int tarea = current_task();
-    print("Tarea ", 0, 1, C_FG_WHITE, 0xB8000);
-    print_int(tarea, 6, 1, C_FG_WHITE, 0xB8000);
-    print_int(n, 26, 0, C_FG_WHITE, 0xB8000);
-    if (n == 0)
-        print("(Division por cero)", 0, 1, C_FG_GREEN, 0xB8000);
+    desalojar_tarea_actual();
+
+    switch(n){
+        case 19:
+            print("Division por cero", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+            break;
+        case 13:
+            print("General protection fault", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+            break;
+        case 14:
+            print("Page fault", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+            break;
+    }
+    print("NAVIO ", 71, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+    print_int(tarea, 77, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+
+    print("EAX ", 51, 2, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(eax, 8, 55, 2, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+
+    print("EBX ", 51, 3, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(ebx, 8, 55, 3, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+
+    print("ECX ", 51, 4, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(ecx, 8, 55, 4, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+
+    print("EDX ", 51, 5, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(edx, 8, 55, 5, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+
+    print("ESI ", 51, 6, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(esi, 8, 55, 6, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);    
+
+    print("EDI ", 51, 7, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(edi, 8, 55, 7, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);     
+
+    print("EBP ", 51, 8, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(ebp, 8, 55, 8, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);       
+
+    print("ESP ", 51, 9, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(esp, 8, 55, 9, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);    
+
+    print("EIP ", 51, 10, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(eip, 8, 55, 10, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);    
+
+    print("CR0 ", 51, 11, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(cr0, 8, 55, 11, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);    
+
+    print("CR2 ", 51, 12, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(cr2, 8, 55, 12, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);  
+
+    print("CR3 ", 51, 13, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(cr3, 8, 55, 13, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);      
+
+    print("CR4 ", 51, 14, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(cr4, 8, 55, 14, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);    
+
+    print("CS ", 66, 2, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(cs, 8, 69, 2, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);   
+
+    print("DS ", 66, 3, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(ds, 8, 69, 3, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+
+    print("ES ", 66, 4, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(es, 8, 69, 4, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+
+    print("FS ", 66, 5, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(fs, 8, 69, 5, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+
+    print("GS ", 66, 6, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(gs, 8, 69, 6, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+
+    print("SS ", 66, 7, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(ss, 8, 69, 7, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+
+    print("EFLAGS", 66, 9, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(eflags, 8, 69, 10, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+
+    screen_modo_estado();
 }
 
 void int_teclado(int n){

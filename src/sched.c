@@ -79,7 +79,6 @@ unsigned short sched_proxima_bandera(){
 	if (currFlag >= CANT_TAREAS - 1){
 		cicloBandera = 0;
 		modoBandera = FALSE;
-		currFlag = -1;
 	}
 
 	if (current == CANT_TAREAS)
@@ -93,13 +92,27 @@ unsigned short proximo_indice(){
 		tasks[currFlag] = 0x00;
 		flags[currFlag] = 0x00;
 	}
-	if (modoBandera)
+	if (modoBandera){
+		corriendoBandera = TRUE;
 		return sched_proxima_bandera();
-	else{
+	}else{
 		cicloBandera++;
+		// currFlag lo actualizo aca porque si lo hago en sched_proxima_bandera()
+		// al generar un problema la tarea 7, se intentaria desalojar la bandera -1 
+		currFlag = -1;					
 		if (cicloBandera == 3)
 			modoBandera = TRUE;			// En el prox tick se ejecuta sched_proxima_bandera()
 		return sched_proximo_indice();
+	}
+}
+
+void desalojar_tarea_actual(){
+	if (corriendoBandera){
+		flags[currFlag] = 0x00;
+		tasks[currFlag] = 0x00;
+	} else{
+		flags[currTask] = 0x00;
+		tasks[currTask] = 0x00;
 	}
 }
 
