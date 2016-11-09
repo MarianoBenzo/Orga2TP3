@@ -14,12 +14,17 @@ extern fin_intr_pic1
 
 extern atender_int
 extern int_teclado
+extern navegar
 
 extern screen_modo_estado
 extern screen_modo_mapa
 
 extern mmu_mapear_pagina
 
+extern proximo_indice
+
+;; Variables globales
+extern corriendoBandera
 
 ;;
 ;; Definición de MACROS
@@ -27,8 +32,8 @@ extern mmu_mapear_pagina
 
 global _isr32
 global _isr33
-global _isr50
-global _isr66
+global _isrx50
+global _isrx66
 
 
 %macro ISR 1
@@ -52,6 +57,8 @@ _isr%1:
 ;; Datos
 ;; -------------------------------------------------------------------------- ;;
 ; Scheduler
+offset:					dd 0x00
+selector:				dw 0x00
 reloj_numero:           dd 0x00000000
 reloj:                  db '|/-\'
 
@@ -84,9 +91,22 @@ ISR 19
 ;; Rutina de atención del RELOJ
 ;; -------------------------------------------------------------------------- ;;
 _isr32:
-    call fin_intr_pic1
+	pushad
+
     call screen_proximo_reloj
 
+    call proximo_indice
+    cmp ax, 0
+    je .noJump
+    	mov [selector], ax
+    	call fin_intr_pic1
+    	xchg bx, bx
+    	jmp far [offset]
+    	jmp .fin
+    .noJump:
+    	call fin_intr_pic1
+    .fin:
+    	popad
     iret
 
 screen_proximo_reloj:
@@ -96,7 +116,7 @@ screen_proximo_reloj:
 ;; Rutina de atención del TECLADO
 ;; -------------------------------------------------------------------------- ;;
 _isr33:
-    push eax
+    pushad
     call fin_intr_pic1
     
     xor eax, eax
@@ -105,13 +125,13 @@ _isr33:
     call int_teclado
     
     pop eax
-    pop eax
+    popad
     iret 
 ;;
 ;; Rutinas de atención de las SYSCALLS
 ;; -------------------------------------------------------------------------- ;;
 
-_isr50:
+_isrx50:
     pushad
     call fin_intr_pic1
 
@@ -124,8 +144,6 @@ _isr50:
     jmp .fin
 
     .anclar:
-        ; el CR3 contiene el directorio de paginas del kernel o de la tarea?
-        ; como obtengo el CR3 de la tarea?
         mov eax, CR3
         push 0x00               ; parametro "user"
         push 0x00               ; parametro "rw"
@@ -133,6 +151,7 @@ _isr50:
         push eax                ; parametro "cr3"
         push 0x40002000         ; parametro "virtual"
         call mmu_mapear_pagina
+        ; tlbflush?
         pop ebx
         pop ebx
         pop ebx
@@ -142,7 +161,6 @@ _isr50:
     .misilazo:
         ; EBX = direccion fisica donde se disparara el misil
         ; ECX = direccion relativa al espacio de la tarea donde se encuentra el misil
-        ; que cambia que sea relativa o fisica? como accedo a la dir. fisica a partir de la relativa?
         xor eax, eax
         mov edx, ecx
         mov ecx, 0x61   ; 0x61 = 97
@@ -155,19 +173,27 @@ _isr50:
         jmp .fin
     .navegar:
         ; EBX/ECX = direccion fisica del area de usuario para la primera/segunda pagina de codigo
-        ; simplemente hay que copiarlas devuelta de la dir. original (0x10000, para la tarea 1) y remapearlas?
-        ; como se en que tarea estoy parado?
-
+        mov eax, CR3
+        push eax
+        push ecx
+        push ebx
+        call navegar
+        pop ebx
+       	pop ecx
+       	pop eax
     .fin:
         ; como hago para que el scheduler se encargue de volver a la tarea idle?
         ; lo hago desde aca?
         popad
+        jmp 0xB8:0x00
         iret
 
-_isr66:
+_isrx66:
+	pushad
     call fin_intr_pic1
+    mov byte [corriendoBandera], 0x00
+    popad
     jmp 0xB8:0x00       ; tarea_idle
-    ; hace falta hacer algo mas?
     iret
 
 ;; Funciones Auxiliares

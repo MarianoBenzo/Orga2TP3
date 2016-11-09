@@ -10,6 +10,9 @@
 #include "isr.h"
 #include "colors.h"
 #include "screen.h"
+#include "sched.h"
+#include "mmu.h"
+#include "i386.h"
 
 idt_entry idt[255] = { };
 
@@ -22,6 +25,9 @@ void atender_int(int n) {
     unsigned short attr = C_FG_RED;
     limpiar_pantalla();
     print("Se genero la interrupcion ", 0, 0, attr);
+    int tarea = current_task();
+    print("Tarea ", 0, 1, C_FG_WHITE);
+    print_int(tarea, 6, 1, C_FG_WHITE);
     print_int(n, 26, 0, C_FG_WHITE);
     if (n == 0)
         print("(Division por cero)", 0, 1, C_FG_GREEN);
@@ -43,6 +49,32 @@ void int_teclado(int n){
 
     if(makeCode == 0x32)        // M
         screen_modo_mapa();
+}
+
+void navegar(int fisica_uno, int fisica_dos, int cr3){
+    int tarea = current_task();
+
+    mmu_mapear_pagina(0x40000000, cr3, fisica_uno, 1, 1);       // pag codigo 1
+    mmu_mapear_pagina(0x40001000, cr3, fisica_dos, 1, 1);       // pag codigo 2
+
+    unsigned int dir_tarea = dir_codigo_tarea(tarea);
+    unsigned char *src = (unsigned char*) dir_tarea;
+    unsigned char *dst = (unsigned char*) fisica_uno;
+    int i;
+    for(i = 0; i < 4096; i++){
+        *(dst) = *(src);
+        dst++;
+        src++;
+    }
+
+    dst = (unsigned char*) fisica_dos;
+    for(i = 0; i < 4096; i++){
+        *(dst) = *(src);
+        dst++;
+        src++;
+    }
+
+    tlbflush();
 }
 
 /*
@@ -92,6 +124,13 @@ void idt_inicializar() {
     IDT_ENTRY(32);      // Reloj
     IDT_ENTRY(33);      // Teclado
 
-    IDT_ENTRY(50);
-    IDT_ENTRY(66);
+    idt[0x50].offset_0_15 = (unsigned short) ((unsigned int)(&_isrx50) & (unsigned int) 0xFFFF);        
+    idt[0x50].segsel = (unsigned short) 0x90;                                                          
+    idt[0x50].attr = (unsigned short) 0xEE00;                                                           // 0xEE00 = 1110 1110 0000 0000
+    idt[0x50].offset_16_31 = (unsigned short) ((unsigned int)(&_isrx50) >> 16 & (unsigned int) 0xFFFF);
+
+    idt[0x66].offset_0_15 = (unsigned short) ((unsigned int)(&_isrx66) & (unsigned int) 0xFFFF);        
+    idt[0x66].segsel = (unsigned short) 0x90;                                                          
+    idt[0x66].attr = (unsigned short) 0xEE00;                                                           // 0xEE00 = 1110 1110 0000 0000
+    idt[0x66].offset_16_31 = (unsigned short) ((unsigned int)(&_isrx66) >> 16 & (unsigned int) 0xFFFF);
 }

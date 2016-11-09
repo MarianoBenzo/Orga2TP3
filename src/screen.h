@@ -13,11 +13,18 @@
 #define VIDEO_FILS 25
 #define VIDEO_COLS 80
 #define VIDEO_SCREEN 0xB8000
+#define VIDEO_ESTADO 0x2D000
+#define VIDEO_MAPA   0x2E000
 
 typedef struct ca_s {
     unsigned char c;
     unsigned char a;
 } ca;
+
+typedef struct coordenada_s {
+    unsigned char col;
+    unsigned char fila;
+} coordenada;
 
 void print(const char * text, unsigned int x, unsigned int y, unsigned short attr);
 

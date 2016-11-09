@@ -15,6 +15,8 @@ extern mmu_inicializar_dir_kernel
 
 extern tss_inicializar
 
+extern sched_inicializar
+
 ;; GDT
 extern GDT_DESC
 
@@ -108,11 +110,10 @@ modoProtegido:
     call tss_inicializar
 
     ; inicializar el scheduler
-    
+    call sched_inicializar
     ; inicializar la IDT
     call idt_inicializar
     LIDT [IDT_DESC]
-
     ; configurar controlador de interrupciones
     call resetear_pic
     call habilitar_pic
@@ -120,7 +121,7 @@ modoProtegido:
 
     ; cargar la tarea inicial
     ; 0xC0 = 11000 000, descriptor 24 de la GDT (tarea_inicial)
-    mov eax, 0xC0
+    mov ax, 0xC0
     ltr ax
     ; saltar a la primera tarea
     ; 0xB8 = 10111 000, descriptor 23 de la GDT (tarea_idle)

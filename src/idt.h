@@ -28,6 +28,7 @@ extern idt_descriptor IDT_DESC;
 
 void idt_inicializar();
 void int_teclado(int n);
+void navegar(int fisica_uno, int fisica_dos, int cr3);
 
 
 #endif  /* !__IDT_H__ */

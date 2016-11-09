@@ -8,6 +8,20 @@
 #include "screen.h"
 #include "colors.h"
 
+unsigned int screen_paginas_tareas[8][3];
+
+void asignar_dir(unsigned int tarea, unsigned int dir, unsigned char nro_pag){
+    screen_paginas_tareas[tarea][nro_pag] = dir;
+
+}
+
+coordenada coordenadas(unsigned int dir){
+    coordenada coord;
+    coord.fila = (dir / 0x79000);
+    coord.col = (dir % 0x79000);
+}
+
+
 void pintar(ca* p, unsigned char a, unsigned char c)
 {
 	p->a = a;
@@ -45,9 +59,33 @@ void screen_pintar_pantalla()
 
 void screen_modo_mapa()
 {
-    ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_SCREEN;
+    unsigned char *src = (unsigned char*) VIDEO_MAPA;
+    unsigned char *dst = (unsigned char*) VIDEO_SCREEN;
+    int i;
+    for(i = 0; i < 4096; i++){
+        *(dst) = *(src);
+        dst++;
+        src++;
+    }
+}
+
+void screen_modo_estado()
+{
+    unsigned char *src = (unsigned char*) VIDEO_ESTADO;
+    unsigned char *dst = (unsigned char*) VIDEO_SCREEN;
+    int i;
+    for(i = 0; i < 4096; i++){
+        *(dst) = *(src);
+        dst++;
+        src++;
+    }
+}
+
+void pintar_buffer_mapa()
+{
+    ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_MAPA;
     int f;
-    for (f = 0; f < VIDEO_FILS; f++)
+    for (f = 0; f < VIDEO_FILS - 1; f++)
     {
         int c;
         for (c = 0; c < VIDEO_COLS; c++)
@@ -63,9 +101,9 @@ void screen_modo_mapa()
     }
 }
 
-void screen_modo_estado()
+void pintar_buffer_estado()
 {
-    ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_SCREEN;
+    ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_ESTADO;
     int f = 0;
     int c;
     //imprimo cabecera

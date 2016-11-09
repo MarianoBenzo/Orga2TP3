@@ -8,9 +8,10 @@
 #ifndef __SCHED_H__
 #define __SCHED_H__
 
+unsigned char corriendoBandera;
 
 void sched_inicializar();
-unsigned short sched_proximo_indice();
-
+unsigned short proximo_indice();
+int current_task();
 
 #endif	/* !__SCHED_H__ */

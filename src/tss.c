@@ -9,19 +9,20 @@
 #include "gdt.h"
 #include "defines.h"
 #include "mmu.h"
+#include "i386.h"
 
-#define base23(direccion) direccion >> 16
-#define base31(direccion) direccion >> 24
+#define base23(direccion) (((unsigned int) (direccion)) >> 16)
+#define base31(direccion) (((unsigned int) (direccion)) >> 24)
 
-#define GDT_NAVIOS(indice)																		\
-  gdt[indice].base_0_15  = (unsigned short) ((unsigned int) &(tss_navios[indice])); 			\
-  gdt[indice].base_23_16 = (unsigned char)  ((unsigned int) base23(&(tss_navios[indice])));		\
-  gdt[indice].base_31_24 = (unsigned char)  ((unsigned int) base31(&(tss_navios[indice])));	
+#define GDT_NAVIOS(numero, indice)																		\
+  gdt[numero].base_0_15  = (unsigned short) ((unsigned int) &(tss_navios[indice])); 			\
+  gdt[numero].base_23_16 = (unsigned char)  ((unsigned int) base23(&(tss_navios[indice])));		\
+  gdt[numero].base_31_24 = (unsigned char)  ((unsigned int) base31(&(tss_navios[indice])));	
 
-#define GDT_BANDERAS(indice)																	\
-  gdt[indice].base_0_15  = (unsigned short) ((unsigned int) &(tss_banderas[indice])); 			\
-  gdt[indice].base_23_16 = (unsigned char)  ((unsigned int) base23(&(tss_banderas[indice])));	\
-  gdt[indice].base_31_24 = (unsigned char)  ((unsigned int) base31(&(tss_banderas[indice])));	
+#define GDT_BANDERAS(numero, indice)																	\
+  gdt[numero].base_0_15  = (unsigned short) ((unsigned int) &(tss_banderas[indice])); 			\
+  gdt[numero].base_23_16 = (unsigned char)  ((unsigned int) base23(&(tss_banderas[indice])));	\
+  gdt[numero].base_31_24 = (unsigned char)  ((unsigned int) base31(&(tss_banderas[indice])));	
 
 tss tarea_inicial;
 tss tarea_idle;
@@ -38,23 +39,23 @@ void tss_inicializar() {
 	gdt[indice_idle].base_23_16 = (unsigned char)  ((unsigned int) base23(&(tarea_idle)));
 	gdt[indice_idle].base_31_24 = (unsigned char)  ((unsigned int) base31(&(tarea_idle))); 
 
-	GDT_NAVIOS(tarea_1)
-	GDT_NAVIOS(tarea_2)
-	GDT_NAVIOS(tarea_3)
-	GDT_NAVIOS(tarea_4)
-	GDT_NAVIOS(tarea_5)
-	GDT_NAVIOS(tarea_6)
-	GDT_NAVIOS(tarea_7)
-	GDT_NAVIOS(tarea_8)
+	GDT_NAVIOS(tarea_1, 0)
+	GDT_NAVIOS(tarea_2, 1)
+	GDT_NAVIOS(tarea_3, 2)
+	GDT_NAVIOS(tarea_4, 3)
+	GDT_NAVIOS(tarea_5, 4)
+	GDT_NAVIOS(tarea_6, 5)
+	GDT_NAVIOS(tarea_7, 6)
+	GDT_NAVIOS(tarea_8, 7)
 
-	GDT_BANDERAS(tarea_1_bandera)
-	GDT_BANDERAS(tarea_2_bandera)
-	GDT_BANDERAS(tarea_3_bandera)
-	GDT_BANDERAS(tarea_4_bandera)
-	GDT_BANDERAS(tarea_5_bandera)
-	GDT_BANDERAS(tarea_6_bandera)
-	GDT_BANDERAS(tarea_7_bandera)
-	GDT_BANDERAS(tarea_8_bandera)
+	GDT_BANDERAS(tarea_1_bandera, 0)
+	GDT_BANDERAS(tarea_2_bandera, 1)
+	GDT_BANDERAS(tarea_3_bandera, 2)
+	GDT_BANDERAS(tarea_4_bandera, 3)
+	GDT_BANDERAS(tarea_5_bandera, 4)
+	GDT_BANDERAS(tarea_6_bandera, 5)
+	GDT_BANDERAS(tarea_7_bandera, 6)
+	GDT_BANDERAS(tarea_8_bandera, 7)
 
 	tarea_inicial.eip    = 0x00;
 	tarea_inicial.ebp    = 0x00;
@@ -83,8 +84,8 @@ void tss_inicializar() {
 	int mar = 0x100000;
 	int i;
 	for (i = 0; i < CANT_TAREAS; i++){
-		tss_navios[i].cs     = 0xA3;     //1010 00 = 20va entrada GDT
-		tss_navios[i].ds     = 0xAB;	 //1010 10 = 21va entrada GDT
+		tss_navios[i].cs     = 0xA3;     //1010 0011 = 20va entrada GDT
+		tss_navios[i].ds     = 0xAB;	 //1010 1011 = 21va entrada GDT
 		tss_navios[i].ss     = 0xAB;
 		tss_navios[i].es     = 0xAB;
 		tss_navios[i].fs     = 0xAB;

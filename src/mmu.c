@@ -32,8 +32,13 @@ unsigned int prox_pagina(){
 
 unsigned int prox_pagina_pila(){
 	p += 0x1000;
-	int n = p + 0xFFF;
+	//int n = p + 0xFFF;
+	int n = p + 0x1000;
 	return n;
+}
+
+unsigned int dir_codigo_tarea(int tarea){
+	return dir_tareas[tarea];
 }
 
 void mmu_inicializar_dir_kernel() {
@@ -222,14 +227,14 @@ unsigned int mmu_inicializar_dir_tarea(unsigned char tarea, unsigned int fisica)
 	    dir_entry[i].present = 0;
 	}
 
-	mmu_mapear_pagina(0x40000000, dir_directory, fisica, 1, 1);			// pag codigo 1
-	mmu_mapear_pagina(0x40001000, dir_directory, fisica + 4096, 1, 1); 	// pag codigo 2
-	mmu_mapear_pagina(0x40002000, dir_directory, 0, 0, 1);				// ancla
+	mmu_mapear_pagina(0x40000000, dir_directory, fisica, 1, 1);				// pag codigo 1
+	mmu_mapear_pagina(0x40001000, dir_directory, fisica + 0x1000, 1, 1); 	// pag codigo 2
+	mmu_mapear_pagina(0x40002000, dir_directory, 0, 0, 1);					// ancla
 
 	unsigned int dir_tarea = dir_tareas[tarea];
 	unsigned char *src = (unsigned char*) dir_tarea;
 	unsigned char *dst = (unsigned char*) fisica;
-	for(i = 0; i < 4096; i++){
+	for(i = 0; i < 0x2000; i++){
 		*(dst) = *(src);
 		dst++;
 		src++;
