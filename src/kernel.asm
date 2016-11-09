@@ -10,7 +10,6 @@ global start
 extern pintar_scheduler
 extern pintar_buffer_mapa
 extern pintar_buffer_estado
-extern screen_pintar_pantalla
 
 extern mmu_inicializar_dir_kernel
 

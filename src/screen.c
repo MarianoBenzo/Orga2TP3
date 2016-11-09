@@ -10,6 +10,17 @@
 #include "defines.h"
 
 unsigned int screen_paginas_tareas[CANT_TAREAS][3];
+coordenada ultimo_misil;
+
+void redirigir_misil(unsigned int dir){
+    coordenada nuevo_misil = coordenadas(dir);
+    ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_MAPA;
+
+    pintar(&(p[nuevo_misil.fila][nuevo_misil.col]), C_BG_BLACK, 0);
+
+    if (ultimo_misil.col != 0 && ultimo_misil.fila != 0)
+        pintar(&(p[ultimo_misil.fila][ultimo_misil.col]), C_BG_CYAN, 0);
+}
 
 void asignar_dir(unsigned int tarea, unsigned int dir, unsigned char nro_pag){
     // Rango tarea: [0;7]
@@ -43,6 +54,30 @@ void asignar_dir(unsigned int tarea, unsigned int dir, unsigned char nro_pag){
     }
     //Actualizo la matriz
     screen_paginas_tareas[tarea][nro_pag - 1] = dir;
+}
+
+void pintar_tarea(int tarea_vieja, int tarea_nueva){
+    int f = VIDEO_FILS - 1;
+    int c_old = 4 + (tarea_vieja * 3);
+    int c_new = 4 + (tarea_nueva * 3);
+
+    print_int(tarea_vieja, c_old, f, C_FG_BLACK + C_BG_LIGHT_GREY, VIDEO_SCREEN);
+    print("*", c_old + 1, f, C_FG_BLACK + C_BG_LIGHT_GREY, VIDEO_SCREEN);
+
+    print_int(tarea_nueva, c_new, f, C_FG_WHITE + C_BG_RED, VIDEO_SCREEN);
+    print(" ", c_new + 1, f, C_BG_RED, VIDEO_SCREEN);
+}
+
+void pintar_bandera(int bandera_vieja, int bandera_nueva){
+    int f = VIDEO_FILS - 1;
+    int c_old = 32 + (bandera_vieja * 3);
+    int c_new = 32 + (bandera_nueva * 3);
+
+    print_int(bandera_vieja, c_old, f, C_FG_WHITE + C_BG_MAGENTA, VIDEO_SCREEN);
+    print("*", c_old + 1, f, C_FG_WHITE + C_BG_MAGENTA, VIDEO_SCREEN);
+
+    print_int(bandera_nueva, c_new, f, C_FG_WHITE + C_BG_RED, VIDEO_SCREEN);
+    print(" ", c_new + 1, f, C_BG_RED, VIDEO_SCREEN);
 }
 
 coordenada coordenadas(unsigned int dir){
@@ -150,7 +185,7 @@ void pintar_buffer_mapa()
         int c;
         for (c = 0; c < VIDEO_COLS; c++)
         {
-            if (f < 4 || (f == 4 && c < 17))
+            if (f < 4 || (f == 4 && c < 16))
                 pintar(&(p[f][c]), C_BG_GREEN, 0);
             else
                 pintar(&(p[f][c]), C_BG_CYAN, 0);           

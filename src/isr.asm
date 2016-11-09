@@ -16,6 +16,7 @@ extern atender_int
 extern int_teclado
 extern navegar
 extern anclar
+extern redirigir_misil
 
 extern screen_modo_estado
 extern screen_modo_mapa
@@ -121,15 +122,15 @@ _isr32:
 
     call screen_proximo_reloj
 
-;    call proximo_indice
-;    cmp ax, 0
-;    je .noJump
-;    	mov [selector], ax
-;    	call fin_intr_pic1
-;    	xchg bx, bx
-;    	jmp far [offset]
-;    	jmp .fin
-;    .noJump:
+    call proximo_indice
+    cmp ax, 0
+    je .noJump
+    	mov [selector], ax
+    	call fin_intr_pic1
+    	xchg bx, bx
+    	jmp far [offset]
+    	jmp .fin
+    .noJump:
     	call fin_intr_pic1
     .fin:
     	popad
@@ -190,6 +191,9 @@ _isrx50:
             inc edx
             inc eax
             loop .ciclo
+        push ebx
+        call redirigir_misil
+        pop ebx
         jmp .fin
     .navegar:
         ; EBX/ECX = direccion fisica del area de usuario para la primera/segunda pagina de codigo
@@ -202,9 +206,8 @@ _isrx50:
        	pop ecx
        	pop eax
     .fin:
-        ; como hago para que el scheduler se encargue de volver a la tarea idle?
-        ; lo hago desde aca?
         popad
+        call screen_modo_mapa
         jmp 0xB8:0x00
         iret
 

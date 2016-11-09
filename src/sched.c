@@ -7,6 +7,7 @@
 
 #include "sched.h"
 #include "defines.h"
+#include "screen.h"
 
 const unsigned char task_idle = (indice_idle << 3);
 // Arreglos con los selectores de segmento en la GDT + privilegios
@@ -51,6 +52,7 @@ void sched_inicializar() {
 
 // Esta funcion unicamente se encarga de devolver el indice de la proxima tarea a ejecutar, no toma en cuenta nada mas
 unsigned short sched_proximo_indice() {
+	int oldTask = currTask;
 	if (currTask == 7)
 		currTask = 0;
 	else
@@ -64,27 +66,29 @@ unsigned short sched_proximo_indice() {
 			currTask = 0;
 		j++;
 	}
+	pintar_tarea(oldTask, currTask);
 
     return tasks[currTask];
 }
 
 unsigned short sched_proxima_bandera(){
+	int oldFlag = currFlag;
 	currFlag++;
 
 	while (flags[currFlag] == 0 && currFlag < CANT_TAREAS)
 		currFlag++;
 
-	int current = currFlag;
 	// Si currFlag es 7 u 8, significa que ya terminé de ejecutar todas las banderas
 	if (currFlag >= CANT_TAREAS - 1){
 		cicloBandera = 0;
 		modoBandera = FALSE;
 	}
+	pintar_bandera(oldFlag, currFlag);
 
-	if (current == CANT_TAREAS)
+	if (currFlag == CANT_TAREAS)
 		return 0;
 	else
-		return flags[current];
+		return flags[currFlag];
 }
 
 unsigned short proximo_indice(){
