@@ -40,64 +40,64 @@ void atender_int(int n, int eax, int ebx, int ecx, int edx, int esi, int edi, in
     print_int(tarea, 77, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
 
     print("EAX ", 51, 2, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(eax, 8, 55, 2, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(eax, 8, 55, 2, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);
 
     print("EBX ", 51, 3, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(ebx, 8, 55, 3, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(ebx, 8, 55, 3, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);
 
     print("ECX ", 51, 4, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(ecx, 8, 55, 4, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(ecx, 8, 55, 4, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);
 
     print("EDX ", 51, 5, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(edx, 8, 55, 5, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(edx, 8, 55, 5, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);
 
     print("ESI ", 51, 6, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(esi, 8, 55, 6, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);    
+    print_hex(esi, 8, 55, 6, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);    
 
     print("EDI ", 51, 7, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(edi, 8, 55, 7, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);     
+    print_hex(edi, 8, 55, 7, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);     
 
     print("EBP ", 51, 8, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(ebp, 8, 55, 8, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);       
+    print_hex(ebp, 8, 55, 8, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);       
 
     print("ESP ", 51, 9, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(esp, 8, 55, 9, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);    
+    print_hex(esp, 8, 55, 9, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);    
 
     print("EIP ", 51, 10, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(eip, 8, 55, 10, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);    
+    print_hex(eip, 8, 55, 10, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);    
 
     print("CR0 ", 51, 11, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(cr0, 8, 55, 11, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);    
+    print_hex(cr0, 8, 55, 11, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);    
 
     print("CR2 ", 51, 12, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(cr2, 8, 55, 12, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);  
+    print_hex(cr2, 8, 55, 12, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);  
 
     print("CR3 ", 51, 13, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(cr3, 8, 55, 13, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);      
+    print_hex(cr3, 8, 55, 13, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);      
 
     print("CR4 ", 51, 14, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(cr4, 8, 55, 14, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);    
+    print_hex(cr4, 8, 55, 14, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);    
 
     print("CS ", 66, 2, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(cs, 8, 69, 2, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);   
+    print_hex(cs, 8, 69, 2, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);   
 
     print("DS ", 66, 3, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(ds, 8, 69, 3, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(ds, 8, 69, 3, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);
 
     print("ES ", 66, 4, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(es, 8, 69, 4, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(es, 8, 69, 4, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);
 
     print("FS ", 66, 5, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(fs, 8, 69, 5, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(fs, 8, 69, 5, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);
 
     print("GS ", 66, 6, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(gs, 8, 69, 6, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(gs, 8, 69, 6, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);
 
     print("SS ", 66, 7, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(ss, 8, 69, 7, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(ss, 8, 69, 7, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);
 
     print("EFLAGS", 66, 9, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(eflags, 8, 69, 10, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(eflags, 8, 69, 10, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);
 
     screen_modo_estado();
 }
@@ -118,6 +118,14 @@ void int_teclado(int n){
 
     if(makeCode == 0x32)        // M
         screen_modo_mapa();
+}
+
+void anclar(int fisica, int cr3){
+    int tarea = current_task();
+
+    mmu_mapear_pagina(0x40002000, cr3, fisica, 0, 0);
+    asignar_dir(tarea, fisica, 3);
+    tlbflush();
 }
 
 void navegar(int fisica_uno, int fisica_dos, int cr3){
