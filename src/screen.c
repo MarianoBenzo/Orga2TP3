@@ -47,8 +47,8 @@ void asignar_dir(unsigned int tarea, unsigned int dir, unsigned char nro_pag){
 
 coordenada coordenadas(unsigned int dir){
     coordenada coord;
-    coord.fila = (dir / 0x13C00);
-    coord.col = ((dir % 0x13C00) / 0x1000);
+    coord.fila = ((dir / 0x1000) / 80);
+    coord.col = ((dir / 0x1000) % 80);
     return coord;
 }
 
