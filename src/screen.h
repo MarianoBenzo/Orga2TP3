@@ -26,18 +26,19 @@ typedef struct coordenada_s {
     unsigned char fila;
 } coordenada;
 
-void print(const char * text, unsigned int x, unsigned int y, unsigned short attr);
+void print(const char * text, unsigned int x, unsigned int y, unsigned short attr, unsigned int dir);
 
-void print_hex(unsigned int numero, int size, unsigned int x, unsigned int y, unsigned short attr);
+void print_hex(unsigned int numero, int size, unsigned int x, unsigned int y, unsigned short attr, unsigned int dir);
 
-void print_int(unsigned int n, unsigned int x, unsigned int y, unsigned short attr);
-
-void screen_pintar_pantalla();
+void print_int(unsigned int n, unsigned int x, unsigned int y, unsigned short attr, unsigned int dir);
 
 void limpiar_pantalla();
 
+void screen_pintar_pantalla();
 void screen_modo_mapa();
-
 void screen_modo_estado();
+
+void pintar_buffer_mapa();
+void pintar_buffer_estado();
 
 #endif  /* !__SCREEN_H__ */
