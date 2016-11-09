@@ -7,18 +7,49 @@
 
 #include "screen.h"
 #include "colors.h"
+#include "defines.h"
 
-unsigned int screen_paginas_tareas[8][3];
+unsigned int screen_paginas_tareas[CANT_TAREAS][3];
 
 void asignar_dir(unsigned int tarea, unsigned int dir, unsigned char nro_pag){
-    screen_paginas_tareas[tarea][nro_pag] = dir;
+    // Rango tarea: [0;7]
+    // Rango nro_pag: [1;3]
 
+    //Actualizo la pantalla de estado
+    unsigned char columna = 6 + (nro_pag - 1) * 14;
+    unsigned char fila = 16 + tarea;
+    print_hex(dir, 8, columna, fila, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+
+    //Si ya estaba dibujada en el mapa, la borro
+    ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_MAPA;
+    if (screen_paginas_tareas[tarea][nro_pag] != 0){
+        coordenada coord_vieja = coordenadas(screen_paginas_tareas[tarea][nro_pag - 1]);
+        if (nro_pag == 3)
+            pintar(&(p[coord_vieja.fila][coord_vieja.col]), C_BG_GREEN, 0);
+        else
+            pintar(&(p[coord_vieja.fila][coord_vieja.col]), C_BG_CYAN, 0);
+    }
+
+    //Dibujo en la nueva coordenada
+    coordenada coord_nueva = coordenadas(dir);
+    unsigned char x = coord_nueva.col;
+    unsigned char y = coord_nueva.fila;
+    
+    if (p[y][x].c != 0){
+        //Hay otra pagina mapeada en el mismo lugar!
+        print("X", y, x, C_FG_WHITE + C_BG_MAGENTA, VIDEO_MAPA);
+    } else{
+        print_int(tarea + 1, x, y, C_FG_WHITE + C_BG_BROWN, VIDEO_MAPA);
+    }
+    //Actualizo la matriz
+    screen_paginas_tareas[tarea][nro_pag - 1] = dir;
 }
 
 coordenada coordenadas(unsigned int dir){
     coordenada coord;
     coord.fila = (dir / 0x79000);
-    coord.col = (dir % 0x79000);
+    coord.col = ((dir % 0x79000) / 0x1000);
+    return coord;
 }
 
 
@@ -92,11 +123,8 @@ void pintar_buffer_mapa()
         {
             if (f < 4 || (f == 4 && c < 17))
                 pintar(&(p[f][c]), C_BG_GREEN, 0);
-            else if(f == VIDEO_FILS-1)
-                pintar(&(p[f][c]), C_BG_BLACK, 0);
             else
-                pintar(&(p[f][c]), C_BG_CYAN, 0);
-            
+                pintar(&(p[f][c]), C_BG_CYAN, 0);           
         }
     }
 }
@@ -107,7 +135,7 @@ void pintar_buffer_estado()
     int f = 0;
     int c;
     //imprimo cabecera
-    print("Francesco Tamburini/Teatro Colon", 0, 0, C_BG_BLACK + C_FG_WHITE);
+    print("Francesco Tamburini/Teatro Colon", 0, 0, C_BG_BLACK + C_FG_WHITE, VIDEO_ESTADO);
     for (c = 32; c < VIDEO_COLS; c++)
         pintar(&(p[f][c]), C_BG_BLACK, 0);
 
@@ -122,8 +150,8 @@ void pintar_buffer_estado()
     {
         for (c = 5; c < 51; c += 12)
         {
-            print("NAVIO ", c, f, C_BG_LIGHT_GREY + C_FG_BLACK);
-            print_int(navio, c + 6, f, C_BG_LIGHT_GREY + C_FG_BLACK);
+            print("NAVIO ", c, f, C_BG_LIGHT_GREY + C_FG_BLACK, VIDEO_ESTADO);
+            print_int(navio, c + 6, f, C_BG_LIGHT_GREY + C_FG_BLACK, VIDEO_ESTADO);
             navio++;
         }
     }
@@ -142,11 +170,21 @@ void pintar_buffer_estado()
             if (c == 0 || c == VIDEO_COLS - 1)
                 pintar(&(p[f][c]), C_BG_BLACK, 0);
             else if (c == 1)
-                print_int(navio, c, f, C_BG_LIGHT_GREY + C_FG_BLACK);
+                print_int(navio, c, f, C_BG_LIGHT_GREY + C_FG_BLACK, VIDEO_ESTADO);
             else
                 pintar(&(p[f][c]), C_BG_CYAN, 0);
         }
         navio++;
+    }
+    for (f = 16; f < VIDEO_FILS - 1; f++){
+        for (c = 3; c < 35; c += 14){
+            if (c == 3)
+                print("P1:", c, f, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+            else if (c == 17)
+                print("P2:", c, f, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+            else
+                print("P3:", c, f, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+        }
     }
 
     //imprimo barra del scheduler
@@ -154,17 +192,17 @@ void pintar_buffer_estado()
     for (c = 0; c < VIDEO_COLS; c++)
     {
         if (c == 0)
-            print("*", c, f, C_BG_LIGHT_GREY + C_FG_BLACK);
+            print("*", c, f, C_BG_LIGHT_GREY + C_FG_BLACK, VIDEO_ESTADO);
         else if (c == VIDEO_COLS - 1)
-            print("*", c, f, C_BG_BLACK + C_FG_WHITE);
+            print("*", c, f, C_BG_BLACK + C_FG_WHITE, VIDEO_ESTADO);
         else
             pintar(&(p[f][c]), C_BG_BLACK, 0);
     }
 
 }
 
-void print(const char * text, unsigned int x, unsigned int y, unsigned short attr) {
-    ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_SCREEN;
+void print(const char * text, unsigned int x, unsigned int y, unsigned short attr, unsigned int dir) {
+    ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) dir;
     int i;
     for (i = 0; text[i] != 0; i++) {
         p[y][x].c = (unsigned char) text[i];
@@ -177,8 +215,8 @@ void print(const char * text, unsigned int x, unsigned int y, unsigned short att
     }
 }
 
-void print_hex(unsigned int numero, int size, unsigned int x, unsigned int y, unsigned short attr) {
-    ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_SCREEN;
+void print_hex(unsigned int numero, int size, unsigned int x, unsigned int y, unsigned short attr, unsigned int dir) {
+    ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) dir;
     int i;
     char hexa[8];
     char letras[16] = "0123456789ABCDEF";
@@ -190,18 +228,20 @@ void print_hex(unsigned int numero, int size, unsigned int x, unsigned int y, un
     hexa[5] = letras[ ( numero & 0x00F00000 ) >> 20 ];
     hexa[6] = letras[ ( numero & 0x0F000000 ) >> 24 ];
     hexa[7] = letras[ ( numero & 0xF0000000 ) >> 28 ];
+    print("0x", x, y, attr, dir);
+    x += 2;
     for(i = 0; i < size; i++) {
         p[y][x + size - i - 1].c = hexa[i];
         p[y][x + size - i - 1].a = attr;
     }
 }
 
-void print_int(unsigned int n, unsigned int x, unsigned int y, unsigned short attr) {
-    ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_SCREEN;
+void print_int(unsigned int n, unsigned int x, unsigned int y, unsigned short attr, unsigned int dir) {
+    ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) dir;
     if( n > 9 ) {
       int a = n / 10;
       n -= 10 * a;
-      print_int(a,x-1,y,attr);
+      print_int(a,x-1,y,attr, dir);
     }
     p[y][x].c = '0'+n;
     p[y][x].a = attr;
