@@ -95,15 +95,15 @@ _isr32:
 
     call screen_proximo_reloj
 
-    call proximo_indice
-    cmp ax, 0
-    je .noJump
-    	mov [selector], ax
-    	call fin_intr_pic1
-    	xchg bx, bx
-    	jmp far [offset]
-    	jmp .fin
-    .noJump:
+;    call proximo_indice
+;    cmp ax, 0
+;    je .noJump
+;    	mov [selector], ax
+;    	call fin_intr_pic1
+;    	xchg bx, bx
+;    	jmp far [offset]
+;    	jmp .fin
+;    .noJump:
     	call fin_intr_pic1
     .fin:
     	popad

@@ -7,6 +7,7 @@
 
 #include "mmu.h"
 #include "i386.h"
+#include "screen.h"
 
 #define PDE_INDEX(virtual)  virtual >> 22
 #define PTE_INDEX(virtual)  (virtual << 10) >> 22
@@ -32,7 +33,6 @@ unsigned int prox_pagina(){
 
 unsigned int prox_pagina_pila(){
 	p += 0x1000;
-	//int n = p + 0xFFF;
 	int n = p + 0x1000;
 	return n;
 }
@@ -230,6 +230,9 @@ unsigned int mmu_inicializar_dir_tarea(unsigned char tarea, unsigned int fisica)
 	mmu_mapear_pagina(0x40000000, dir_directory, fisica, 1, 1);				// pag codigo 1
 	mmu_mapear_pagina(0x40001000, dir_directory, fisica + 0x1000, 1, 1); 	// pag codigo 2
 	mmu_mapear_pagina(0x40002000, dir_directory, 0, 0, 1);					// ancla
+	asignar_dir(tarea, fisica, 1);
+	asignar_dir(tarea, fisica + 0x1000, 2);
+	asignar_dir(tarea, 0x00, 3);
 
 	unsigned int dir_tarea = dir_tareas[tarea];
 	unsigned char *src = (unsigned char*) dir_tarea;

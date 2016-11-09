@@ -47,8 +47,8 @@ void asignar_dir(unsigned int tarea, unsigned int dir, unsigned char nro_pag){
 
 coordenada coordenadas(unsigned int dir){
     coordenada coord;
-    coord.fila = (dir / 0x79000);
-    coord.col = ((dir % 0x79000) / 0x1000);
+    coord.fila = (dir / 0x13C00);
+    coord.col = ((dir % 0x13C00) / 0x1000);
     return coord;
 }
 
@@ -93,7 +93,7 @@ void screen_modo_mapa()
     unsigned char *src = (unsigned char*) VIDEO_MAPA;
     unsigned char *dst = (unsigned char*) VIDEO_SCREEN;
     int i;
-    for(i = 0; i < 4096; i++){
+    for(i = 0; i < 3840; i++){
         *(dst) = *(src);
         dst++;
         src++;
@@ -105,10 +105,39 @@ void screen_modo_estado()
     unsigned char *src = (unsigned char*) VIDEO_ESTADO;
     unsigned char *dst = (unsigned char*) VIDEO_SCREEN;
     int i;
-    for(i = 0; i < 4096; i++){
+    for(i = 0; i < 3840; i++){ // 3840 = 4000 - 160
         *(dst) = *(src);
         dst++;
         src++;
+    }
+}
+
+void pintar_scheduler(){
+    ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_SCREEN;
+    int c;
+    int f = VIDEO_FILS - 1;
+    for (c = 0; c < VIDEO_COLS; c++)
+    {
+        if (c == 0)
+            print("*", c, f, C_BG_LIGHT_GREY + C_FG_BLACK, VIDEO_SCREEN);
+        else if (c == VIDEO_COLS - 1)
+            print("*", c, f, C_BG_BLACK + C_FG_WHITE, VIDEO_SCREEN);
+        else
+            pintar(&(p[f][c]), C_BG_BLACK, 0);
+    }
+    //Relojes tareas
+    int navio = 1;
+    for (c = 4; c < 28; c += 3){
+        print_int(navio, c, f, C_BG_LIGHT_GREY + C_FG_WHITE, VIDEO_SCREEN);
+        print("*", c + 1, f, C_BG_LIGHT_GREY + C_FG_WHITE, VIDEO_SCREEN);
+        navio++;
+    }
+    //Relojes banderas
+    navio = 1;
+    for (c = 34; c < 58; c += 3){
+        print_int(navio, c, f, C_BG_MAGENTA + C_FG_WHITE, VIDEO_SCREEN);
+        print("*", c + 1, f, C_BG_MAGENTA + C_FG_WHITE, VIDEO_SCREEN);
+        navio++;
     }
 }
 
@@ -186,19 +215,6 @@ void pintar_buffer_estado()
                 print("P3:", c, f, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
         }
     }
-
-    //imprimo barra del scheduler
-    f = VIDEO_FILS - 1;
-    for (c = 0; c < VIDEO_COLS; c++)
-    {
-        if (c == 0)
-            print("*", c, f, C_BG_LIGHT_GREY + C_FG_BLACK, VIDEO_ESTADO);
-        else if (c == VIDEO_COLS - 1)
-            print("*", c, f, C_BG_BLACK + C_FG_WHITE, VIDEO_ESTADO);
-        else
-            pintar(&(p[f][c]), C_BG_BLACK, 0);
-    }
-
 }
 
 void print(const char * text, unsigned int x, unsigned int y, unsigned short attr, unsigned int dir) {

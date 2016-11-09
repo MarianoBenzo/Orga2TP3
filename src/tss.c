@@ -14,12 +14,12 @@
 #define base23(direccion) (((unsigned int) (direccion)) >> 16)
 #define base31(direccion) (((unsigned int) (direccion)) >> 24)
 
-#define GDT_NAVIOS(numero, indice)																		\
+#define GDT_NAVIOS(numero, indice)																\
   gdt[numero].base_0_15  = (unsigned short) ((unsigned int) &(tss_navios[indice])); 			\
   gdt[numero].base_23_16 = (unsigned char)  ((unsigned int) base23(&(tss_navios[indice])));		\
   gdt[numero].base_31_24 = (unsigned char)  ((unsigned int) base31(&(tss_navios[indice])));	
 
-#define GDT_BANDERAS(numero, indice)																	\
+#define GDT_BANDERAS(numero, indice)															\
   gdt[numero].base_0_15  = (unsigned short) ((unsigned int) &(tss_banderas[indice])); 			\
   gdt[numero].base_23_16 = (unsigned char)  ((unsigned int) base23(&(tss_banderas[indice])));	\
   gdt[numero].base_31_24 = (unsigned char)  ((unsigned int) base31(&(tss_banderas[indice])));	

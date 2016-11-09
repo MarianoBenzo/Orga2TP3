@@ -24,13 +24,13 @@ idt_descriptor IDT_DESC = {
 void atender_int(int n) {
     unsigned short attr = C_FG_RED;
     limpiar_pantalla();
-    print("Se genero la interrupcion ", 0, 0, attr);
+    print("Se genero la interrupcion ", 0, 0, attr, 0xB8000);
     int tarea = current_task();
-    print("Tarea ", 0, 1, C_FG_WHITE);
-    print_int(tarea, 6, 1, C_FG_WHITE);
-    print_int(n, 26, 0, C_FG_WHITE);
+    print("Tarea ", 0, 1, C_FG_WHITE, 0xB8000);
+    print_int(tarea, 6, 1, C_FG_WHITE, 0xB8000);
+    print_int(n, 26, 0, C_FG_WHITE, 0xB8000);
     if (n == 0)
-        print("(Division por cero)", 0, 1, C_FG_GREEN);
+        print("(Division por cero)", 0, 1, C_FG_GREEN, 0xB8000);
 }
 
 void int_teclado(int n){
@@ -42,7 +42,7 @@ void int_teclado(int n){
             numero = 0;
         else
             numero--;
-        print_int(numero, VIDEO_COLS - 1, 0, C_FG_WHITE + (numero%8 << 4));
+        print_int(numero, VIDEO_COLS - 1, 0, C_FG_WHITE + (numero%8 << 4), 0xB8000);
     }
     if(makeCode == 0x12)        // E
         screen_modo_estado();
@@ -56,6 +56,8 @@ void navegar(int fisica_uno, int fisica_dos, int cr3){
 
     mmu_mapear_pagina(0x40000000, cr3, fisica_uno, 1, 1);       // pag codigo 1
     mmu_mapear_pagina(0x40001000, cr3, fisica_dos, 1, 1);       // pag codigo 2
+    asignar_dir(tarea, fisica_uno, 1);
+    asignar_dir(tarea, fisica_dos, 2);
 
     unsigned int dir_tarea = dir_codigo_tarea(tarea);
     unsigned char *src = (unsigned char*) dir_tarea;

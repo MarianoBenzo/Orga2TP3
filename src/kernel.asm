@@ -7,9 +7,10 @@
 
 global start
 
+extern pintar_scheduler
+extern pintar_buffer_mapa
+extern pintar_buffer_estado
 extern screen_pintar_pantalla
-extern screen_modo_mapa
-extern screen_modo_estado
 
 extern mmu_inicializar_dir_kernel
 
@@ -87,7 +88,9 @@ modoProtegido:
     mov esp, 0x27000
 
     ; pintar pantalla, todos los colores, que bonito!
-    call screen_pintar_pantalla
+    call pintar_scheduler
+    call pintar_buffer_estado
+    call pintar_buffer_mapa
 
     ; inicializar el manejador de memoria
     call mmu_inicializar_dir_kernel
