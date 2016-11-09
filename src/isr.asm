@@ -15,6 +15,7 @@ extern fin_intr_pic1
 extern atender_int
 extern int_teclado
 extern navegar
+extern anclar
 
 extern screen_modo_estado
 extern screen_modo_mapa
@@ -40,18 +41,30 @@ global _isrx66
 global _isr%1
 
 _isr%1:
-    push eflags
-    push ss
-    push gs
-    push fs
-    push es
-    push ds
-    push cs
-    push cr4
-    push cr3
-    push cr2
-    push cr0
-    push eip
+    ;push eflags
+    push eax
+    xor eax, eax
+    mov ax, ss
+    push eax
+    mov ax, gs
+    push eax
+    mov ax, fs
+    push eax
+    mov ax, es
+    push eax
+    mov ax, ds
+    push eax
+    mov ax, cs
+    push eax
+    mov eax, cr4
+    push eax
+    mov eax, cr3
+    push eax
+    mov eax, cr2
+    push eax
+    mov eax, cr0
+    push eax
+    ;push eip
     push esp
     push ebp
     push edi
@@ -59,7 +72,6 @@ _isr%1:
     push edx
     push ecx
     push ebx
-    push eax
     push %1
 	call atender_int
 
@@ -159,18 +171,12 @@ _isrx50:
 
     .anclar:
         mov eax, CR3
-        push 0x00               ; parametro "user"
-        push 0x00               ; parametro "rw"
-        push ebx                ; parametro "fisica"
         push eax                ; parametro "cr3"
-        push 0x40002000         ; parametro "virtual"
-        call mmu_mapear_pagina
-        ; tlbflush?
-        pop ebx
-        pop ebx
+        push ebx                ; parametro "fisica"
+        call anclar
         pop ebx
         pop eax
-        pop eax
+
         jmp .fin
     .misilazo:
         ; EBX = direccion fisica donde se disparara el misil

@@ -21,7 +21,7 @@ idt_descriptor IDT_DESC = {
     (unsigned int) &idt
 };
 
-void atender_int(int n, int eax, int ebx, int ecx, int edx, int esi, int edi, int ebp, int esp, int eip, int cr0, int cr2, int cr3, int cr4, int cs, int ds, int es, int fs, int gs, int ss, int eflags) {
+void atender_int(int n, int ebx, int ecx, int edx, int esi, int edi, int ebp, int esp, int cr0, int cr2, int cr3, int cr4, int cs, int ds, int es, int fs, int gs, int ss, int eax) {
     int tarea = current_task();
     desalojar_tarea_actual();
 
@@ -63,8 +63,8 @@ void atender_int(int n, int eax, int ebx, int ecx, int edx, int esi, int edi, in
     print("ESP ", 51, 9, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
     print_hex(esp, 8, 55, 9, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);    
 
-    print("EIP ", 51, 10, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(eip, 8, 55, 10, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);    
+    //print("EIP ", 51, 10, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    //print_hex(eip, 8, 55, 10, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);    
 
     print("CR0 ", 51, 11, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
     print_hex(cr0, 8, 55, 11, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);    
@@ -96,8 +96,8 @@ void atender_int(int n, int eax, int ebx, int ecx, int edx, int esi, int edi, in
     print("SS ", 66, 7, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
     print_hex(ss, 8, 69, 7, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);
 
-    print("EFLAGS", 66, 9, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(eflags, 8, 69, 10, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);
+    //print("EFLAGS", 66, 9, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    //print_hex(eflags, 8, 69, 10, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);
 
     screen_modo_estado();
 }
