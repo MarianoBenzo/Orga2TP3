@@ -44,6 +44,9 @@ void screen_pintar_pantalla();
 void screen_modo_mapa();
 void screen_modo_estado();
 
+void pintar_banderas(unsigned int navio);
+
+
 void pintar_scheduler();
 void pintar_buffer_mapa();
 void pintar_buffer_estado();

@@ -145,6 +145,11 @@ void screen_modo_estado()
         dst++;
         src++;
     }
+    
+    for(i = 0; i < 8; i++)
+    {
+		pintar_banderas(i);
+	}
 }
 
 void pintar_scheduler(){
@@ -300,6 +305,221 @@ void print_int(unsigned int n, unsigned int x, unsigned int y, unsigned short at
     p[y][x].a = attr;
 }
 
+void pintar_banderas(unsigned int navio)
+{	
+    ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_SCREEN;
+	
+	int i;
+	int j;
+					
+	if(navio == 0)
+	{
+		int f = 3;
+		for(i = f; i < f + 5; i++)
+		{
+			int c = 2;
+			for(j = c; j < c + 10;j++)
+			{
+				if((j==c || j == c+9) || (i > f && j > c+1 && i < f + 4 && j < c + 8))
+					pintar(&(p[i][j]),C_BG_CYAN,0);
+				else
+					pintar(&(p[i][j]),C_BG_RED,0);
+			}		
+		}
+	}
+	if(navio == 1)
+	{	
+		int f = 3;
+		for(i = f; i < f + 5;i++)
+		{	
+			int c = 14;
+			for(j = c; j < c + 10;j++)
+			{
+				if(i == f + 4)
+				{
+					if(j > c+1 && j < c+8)
+						pintar(&(p[i][j]),C_BG_RED,0);
+					else
+						pintar(&(p[i][j]),C_BG_CYAN,0);
+
+				}
+				else
+				{
+					if(j > c + 3 && j < c + 6)
+						pintar(&(p[i][j]),C_BG_RED,0);
+					else
+						pintar(&(p[i][j]),C_BG_CYAN,0);
+				}
+			}
+		}
+	}
+	if(navio == 2)
+	{
+		int f = 3;
+		for(i = f; i < f+5;i++)
+		{
+			int c = 26;
+			for(j = c; j < c+10;j++)
+			{
+				if(i == f)
+				{
+					if(j > c + 1 && j < c+8)
+						pintar(&(p[i][j]),C_BG_RED,0);						
+					else
+						pintar(&(p[i][j]),C_BG_CYAN,0);
+				}
+				if(i == f+1)
+				{
+					if((j > c && j < c+3) || (j > c+6 && j < c+9))
+						pintar(&(p[i][j]),C_BG_RED,0);						
+					else
+						pintar(&(p[i][j]),C_BG_CYAN,0);
+				}
+				if(i == f+2)
+				{
+					if(j > c+4 && j < c+7)
+						pintar(&(p[i][j]),C_BG_RED,0);						
+					else
+						pintar(&(p[i][j]),C_BG_CYAN,0);
+				}
+				if(i == f+3)
+				{
+					if(j > c+2 && j < c+5)
+						pintar(&(p[i][j]),C_BG_RED,0);						
+					else
+						pintar(&(p[i][j]),C_BG_CYAN,0);
+				}
+				if(i == f+4)
+				{
+					if(j > c && j < c+9)
+						pintar(&(p[i][j]),C_BG_RED,0);						
+					else
+						pintar(&(p[i][j]),C_BG_CYAN,0);
+				}
+			}
+			
+		}
+	}
+	if(navio == 3)
+	{
+		int f = 3;
+		for(i = f; i < f+5;i++)
+		{
+			int c = 38;
+			for(j = c; j < c+10;j++)
+			{
+				if(i == f || i == f+4)
+				{
+					pintar(&(p[i][j]),C_BG_RED,0);
+				}
+				else
+				{
+					if(j == c+9 || (i == f+2 && j > c+5))
+						pintar(&(p[i][j]),C_BG_RED,0);
+					else
+						pintar(&(p[i][j]),C_BG_CYAN,0);				
+				}
+			}
+		}
+	}
+	if(navio == 4)
+	{
+		int f = 10;
+		for(i = f; i < f+5;i++)
+		{
+			int c = 2;
+			for(j = c; j < c+10;j++)
+			{
+				if((j>c && j < c+3 && i< f+2) || (j>c+5 && j <c+8))
+				{
+					pintar(&(p[i][j]),C_BG_RED,0);
+				}
+				else if(i == f+2 && j > c+1 && j < c+8)
+				{
+					pintar(&(p[i][j]),C_BG_RED,0);
+				}
+				else
+				{
+					pintar(&(p[i][j]),C_BG_CYAN,0);
+				}
+			}
+		}
+	}
+	if(navio == 5)
+	{	
+		int f = 10;
+		for(i = f; i < f+5;i++)
+		{
+			int c=14;
+			for(j = c; j < c+10;j++)
+			{
+				if(i % 2 == 0)
+				{
+					pintar(&(p[i][j]),C_BG_RED,0);
+				}
+				else if((j == c && i < f+2) || (j == c+9 && i > f+1))
+				{
+					pintar(&(p[i][j]),C_BG_RED,0);
+				}
+				else
+				{
+					pintar(&(p[i][j]),C_BG_CYAN,0);
+				}
+			}
+		}
+	}
+	if(navio == 6)
+	{
+		int f = 10;
+		
+		for(i = f; i < f+5;i++)
+		{
+			int c = 26;
+			for(j = c; j < c+10;j++)
+			{
+				if(i % 2 == 0)
+				{
+					pintar(&(p[i][j]),C_BG_RED,0);
+				}
+				else if(j == c || (j == c+9 && i > f+1))
+				{
+					pintar(&(p[i][j]),C_BG_RED,0);
+				}
+				else
+				{
+					pintar(&(p[i][j]),C_BG_CYAN,0);
+				}
+			}
+		}
+	}
+	if(navio == 7)
+	{
+		int f = 10;
+		int a = 7;
+		int b = 10;
+		for(i = f; i < f+5;i++)
+		{
+			int c = 38;
+			for(j = c; j < c+10;j++)
+			{
+				if(i == f)
+				{
+					pintar(&(p[i][j]),C_BG_RED,0);
+				}
+				else
+				{
+					if(j > c + a && j < c + b)
+						pintar(&(p[i][j]),C_BG_RED,0);
+					else
+						pintar(&(p[i][j]),C_BG_CYAN,0);
+					
+				}
+			}
+			a = a-2;
+			b = b-2;
+		}
+	}
+}
 
 
 
