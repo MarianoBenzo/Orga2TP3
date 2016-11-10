@@ -30,8 +30,8 @@ coordenada coordenadas(unsigned int dir);
 
 void asignar_dir(unsigned int tarea, unsigned int dir, unsigned char nro_pag);
 void redirigir_misil(unsigned int dir);
-void pintar_tarea(int tarea_vieja, int tarea_actual);
-void pintar_bandera(int bandera_vieja, int bandera_actual);
+void pintar_reloj_tarea(int tarea);
+void pintar_reloj_bandera(int bandera);
 
 void pintar(ca* p, unsigned char a, unsigned char c);
 void print(const char * text, unsigned int x, unsigned int y, unsigned short attr, unsigned int dir);

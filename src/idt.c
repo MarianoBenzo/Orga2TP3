@@ -25,6 +25,11 @@ void atender_int(int n, int ebx, int ecx, int edx, int esi, int edi, int ebp, in
     int tarea = current_task();
     desalojar_tarea_actual();
 
+    int c;
+    for (c = 50; c < VIDEO_COLS - 3; c++){
+        print(" ", c, 1, C_BG_CYAN, VIDEO_ESTADO);
+    }
+
     switch(n){
         case 19:
             print("Division por cero", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);

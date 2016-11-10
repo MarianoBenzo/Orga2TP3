@@ -9,7 +9,6 @@
 #include "defines.h"
 #include "screen.h"
 
-const unsigned char task_idle = (indice_idle << 3);
 // Arreglos con los selectores de segmento en la GDT + privilegios
 unsigned short tasks[CANT_TAREAS];					
 unsigned short flags[CANT_TAREAS];
@@ -19,11 +18,8 @@ int currFlag;
 // Contador y booleano para controlar la ejecucion de banderas
 unsigned char modoBandera;
 unsigned char cicloBandera;
-// Variable global indicando que tarea se esta ejecutando
 
 void sched_inicializar() {
-	// Al ejecutar la funcion bandera, depende del contexto, entonces cuando se ejecuta otra bandera hay que hacer un salto de tarea? Si
-	// La funcion bandera ya está determinada por la tarea bandera, con solo hacer el salto ya deberia empezar a ejecutarse? SI
 	tasks[0] = (tarea_1 << 3) + 0x00;
 	tasks[1] = (tarea_2 << 3) + 0x00;
 	tasks[2] = (tarea_3 << 3) + 0x00;
@@ -52,7 +48,6 @@ void sched_inicializar() {
 
 // Esta funcion unicamente se encarga de devolver el indice de la proxima tarea a ejecutar, no toma en cuenta nada mas
 unsigned short sched_proximo_indice() {
-	int oldTask = currTask;
 	if (currTask == 7)
 		currTask = 0;
 	else
@@ -66,13 +61,12 @@ unsigned short sched_proximo_indice() {
 			currTask = 0;
 		j++;
 	}
-	pintar_tarea(oldTask, currTask);
+	pintar_reloj_tarea(currTask);
 
     return tasks[currTask];
 }
 
 unsigned short sched_proxima_bandera(){
-	int oldFlag = currFlag;
 	currFlag++;
 
 	while (flags[currFlag] == 0 && currFlag < CANT_TAREAS)
@@ -82,8 +76,10 @@ unsigned short sched_proxima_bandera(){
 	if (currFlag >= CANT_TAREAS - 1){
 		cicloBandera = 0;
 		modoBandera = FALSE;
+		if (currFlag == CANT_TAREAS)	// si currFlag es 8, no se va a ejecutar una bandera y no se pone en false
+			corriendoBandera = FALSE;
 	}
-	pintar_bandera(oldFlag, currFlag);
+	pintar_reloj_bandera(currFlag);
 
 	if (currFlag == CANT_TAREAS)
 		return 0;
@@ -102,7 +98,7 @@ unsigned short proximo_indice(){
 	}else{
 		cicloBandera++;
 		// currFlag lo actualizo aca porque si lo hago en sched_proxima_bandera()
-		// al generar un problema la tarea 7, se intentaria desalojar la bandera -1 
+		// al generar un problema la bandera 7, se intentaria desalojar la bandera -1 
 		currFlag = -1;					
 		if (cicloBandera == 3)
 			modoBandera = TRUE;			// En el prox tick se ejecuta sched_proxima_bandera()

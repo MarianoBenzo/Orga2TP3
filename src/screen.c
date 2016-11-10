@@ -35,10 +35,31 @@ void asignar_dir(unsigned int tarea, unsigned int dir, unsigned char nro_pag){
     ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_MAPA;
     if (screen_paginas_tareas[tarea][nro_pag] != 0){
         coordenada coord_vieja = coordenadas(screen_paginas_tareas[tarea][nro_pag - 1]);
-        if (nro_pag == 3)
-            pintar(&(p[coord_vieja.fila][coord_vieja.col]), C_BG_GREEN, 0);
-        else
-            pintar(&(p[coord_vieja.fila][coord_vieja.col]), C_BG_CYAN, 0);
+        int f;
+        int c;
+        coordenada repetido;
+        int tareaRepetida;
+        int cantRepetidos = 0;
+        for (f = 0; f < CANT_TAREAS; f++){
+        	for (c = 0; c < 3; c++){
+        		if (f != tarea && c != (nro_pag - 1)){
+        			if (screen_paginas_tareas[f][c] == screen_paginas_tareas[tarea][nro_pag - 1]){
+        				cantRepetidos++;
+        				repetido = coordenadas(screen_paginas_tareas[f][c]);
+        				tareaRepetida = f;
+        			}
+        		}
+        	}
+        }
+        //Si hay mas de una tarea mapeada ahi, la dejo
+        if (cantRepetidos == 1){
+        	print_int(tareaRepetida + 1, repetido.col, repetido.fila, C_FG_WHITE + C_BG_BROWN, VIDEO_MAPA);
+        }else if (cantRepetidos == 0){
+        	if (nro_pag == 3)
+            	pintar(&(p[coord_vieja.fila][coord_vieja.col]), C_BG_GREEN, 0);
+        	else
+            	pintar(&(p[coord_vieja.fila][coord_vieja.col]), C_BG_CYAN, 0);
+        }
     }
 
     //Dibujo en la nueva coordenada
@@ -56,28 +77,38 @@ void asignar_dir(unsigned int tarea, unsigned int dir, unsigned char nro_pag){
     screen_paginas_tareas[tarea][nro_pag - 1] = dir;
 }
 
-void pintar_tarea(int tarea_vieja, int tarea_nueva){
+void pintar_reloj_tarea(int tarea){
     int f = VIDEO_FILS - 1;
-    int c_old = 4 + (tarea_vieja * 3);
-    int c_new = 4 + (tarea_nueva * 3);
+    int c_new = 4 + (tarea * 3);
 
-    print_int(tarea_vieja, c_old, f, C_FG_BLACK + C_BG_LIGHT_GREY, VIDEO_SCREEN);
-    print("*", c_old + 1, f, C_FG_BLACK + C_BG_LIGHT_GREY, VIDEO_SCREEN);
+    int navio = 1;
+    int c;
+    for (c = 4; c < 28; c += 3){
+        print_int(navio, c, f, C_BG_LIGHT_GREY + C_FG_WHITE, VIDEO_SCREEN);
+        print("*", c + 1, f, C_BG_LIGHT_GREY + C_FG_WHITE, VIDEO_SCREEN);
+        navio++;
+    }
 
-    print_int(tarea_nueva, c_new, f, C_FG_WHITE + C_BG_RED, VIDEO_SCREEN);
+    print_int(tarea + 1, c_new, f, C_FG_WHITE + C_BG_RED, VIDEO_SCREEN);
     print(" ", c_new + 1, f, C_BG_RED, VIDEO_SCREEN);
 }
 
-void pintar_bandera(int bandera_vieja, int bandera_nueva){
+void pintar_reloj_bandera(int bandera){
     int f = VIDEO_FILS - 1;
-    int c_old = 32 + (bandera_vieja * 3);
-    int c_new = 32 + (bandera_nueva * 3);
+    int c_new = 32 + (bandera * 3);
 
-    print_int(bandera_vieja, c_old, f, C_FG_WHITE + C_BG_MAGENTA, VIDEO_SCREEN);
-    print("*", c_old + 1, f, C_FG_WHITE + C_BG_MAGENTA, VIDEO_SCREEN);
+    int navio = 1;
+    int c;
+    for (c = 34; c < 58; c += 3){
+        print_int(navio, c, f, C_BG_MAGENTA + C_FG_WHITE, VIDEO_SCREEN);
+        print("*", c + 1, f, C_BG_MAGENTA + C_FG_WHITE, VIDEO_SCREEN);
+        navio++;
+    }
 
-    print_int(bandera_nueva, c_new, f, C_FG_WHITE + C_BG_RED, VIDEO_SCREEN);
-    print(" ", c_new + 1, f, C_BG_RED, VIDEO_SCREEN);
+    if (bandera < CANT_TAREAS){
+    	print_int(bandera + 1, c_new, f, C_FG_WHITE + C_BG_RED, VIDEO_SCREEN);
+    	print(" ", c_new + 1, f, C_BG_RED, VIDEO_SCREEN);
+    }
 }
 
 coordenada coordenadas(unsigned int dir){
@@ -145,11 +176,6 @@ void screen_modo_estado()
         dst++;
         src++;
     }
-    
-    for(i = 0; i < 8; i++)
-    {
-		pintar_banderas(i);
-	}
 }
 
 void pintar_scheduler(){
@@ -174,7 +200,7 @@ void pintar_scheduler(){
     }
     //Relojes banderas
     navio = 1;
-    for (c = 34; c < 58; c += 3){
+    for (c = 32; c < 55; c += 3){
         print_int(navio, c, f, C_BG_MAGENTA + C_FG_WHITE, VIDEO_SCREEN);
         print("*", c + 1, f, C_BG_MAGENTA + C_FG_WHITE, VIDEO_SCREEN);
         navio++;
@@ -224,6 +250,12 @@ void pintar_buffer_estado()
             navio++;
         }
     }
+
+    //pinto las banderas
+    int i;
+    for(i = 0; i < 8; i++){
+    	pintar_banderas(i);
+	}
 
     //imprimo pantalla de debug
     for (f = 2; f < 15; f++)
@@ -307,7 +339,7 @@ void print_int(unsigned int n, unsigned int x, unsigned int y, unsigned short at
 
 void pintar_banderas(unsigned int navio)
 {	
-    ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_SCREEN;
+    ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_ESTADO;
 	
 	int i;
 	int j;
