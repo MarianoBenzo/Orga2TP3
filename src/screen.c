@@ -185,7 +185,7 @@ void pintar_buffer_mapa()
         int c;
         for (c = 0; c < VIDEO_COLS; c++)
         {
-            if (f < 4 || (f == 4 && c < 16))
+            if (f < 3 || (f == 3 && c < 16))
                 pintar(&(p[f][c]), C_BG_GREEN, 0);
             else
                 pintar(&(p[f][c]), C_BG_CYAN, 0);           
