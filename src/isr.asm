@@ -159,7 +159,6 @@ _isr33:
 
 _isrx50:
     pushad
-    call fin_intr_pic1
 
     cmp eax, 0x923
     je .anclar
@@ -211,10 +210,7 @@ _isrx50:
         iret
 
 _isrx66:
-	pushad
-    call fin_intr_pic1
     mov byte [corriendoBandera], 0x00
-    popad
     jmp 0xB8:0x00       ; tarea_idle
     iret
 
