@@ -50,5 +50,6 @@ void pintar_banderas(unsigned int navio);
 void pintar_scheduler();
 void pintar_buffer_mapa();
 void pintar_buffer_estado();
+void pintar_buffer_bandera(unsigned int dir_buffer);
 
 #endif  /* !__SCREEN_H__ */

@@ -76,7 +76,7 @@ void tss_inicializar() {
 	tarea_idle.ds     = 0x98;
 	tarea_idle.fs     = 0x98;
 	tarea_idle.gs     = 0x98;
-	tarea_idle.es     = 0xB0;
+	tarea_idle.es     = 0x98;	
 	tarea_idle.cs 	  = 0x90;
 	tarea_idle.cr3    = 0x27000;
 	tarea_idle.eflags = 0x202;
@@ -101,13 +101,13 @@ void tss_inicializar() {
 	}
 
 	for (i = 0; i < CANT_TAREAS; i++){
-		tss_banderas[i].cs     = 0xA3;    //1010 00 = 20va entrada GDT
-		tss_banderas[i].ds     = 0xAB;	  //1010 10 = 21va entrada GDT
-		tss_banderas[i].ss     = 0xAB;
-		tss_banderas[i].es     = 0xAB;
-		tss_banderas[i].fs     = 0xAB;
-		tss_banderas[i].gs     = 0xAB;
-		tss_banderas[i].eip    = 0x40001FFC;
+		tss_banderas[i].cs     = 0x90;    //1010 00 = 20va entrada GDT
+		tss_banderas[i].ds     = 0x98;	  //1010 10 = 21va entrada GDT
+		tss_banderas[i].ss     = 0x98;
+		tss_banderas[i].es     = 0x98;
+		tss_banderas[i].fs     = 0x98;
+		tss_banderas[i].gs     = 0x98;
+		tss_banderas[i].eip    = 0x40000000 + dir_funcion_bandera(i);
 		tss_banderas[i].esp    = 0x40001FFC;
 		tss_banderas[i].ebp    = 0x40001FFC;
 		tss_banderas[i].eflags = 0x202;

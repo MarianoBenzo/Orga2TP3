@@ -8,9 +8,49 @@
 #include "screen.h"
 #include "colors.h"
 #include "defines.h"
+#include "sched.h"
 
 unsigned int screen_paginas_tareas[CANT_TAREAS][3];
 coordenada ultimo_misil;
+
+void pintar_buffer_bandera(unsigned int dir_buffer){
+    screen_modo_estado();
+    int flag = current_flag();
+    unsigned char *dst = (unsigned char*) VIDEO_SCREEN;
+    unsigned char *src = (unsigned char*) dir_buffer;
+    unsigned char fila;
+    unsigned char col;
+
+    if (flag < 4)
+        fila = 3;
+    else
+        fila = 10;
+
+    if (flag == 0 || flag == 4)
+        col = 2;
+    else if (flag == 1 || flag == 5)
+        col = 14;
+    else if (flag == 2 || flag == 6)
+        col = 26;
+    else
+        col = 38;
+
+    dst += (fila * 160) + (col * 2);
+
+    int i;
+    int j = 0;
+    for(i = 0; i < 100; i++){
+        if (j == 20){
+            fila++;
+            dst = (unsigned char*) VIDEO_SCREEN + (fila * 160) + (col * 2); // Salto a la proxima linea
+            j = 0;
+        }
+        *(dst) = *(src);
+        dst++;
+        src++;
+        j++;
+    }    
+}
 
 void redirigir_misil(unsigned int dir){
     coordenada nuevo_misil = coordenadas(dir);
@@ -33,7 +73,7 @@ void asignar_dir(unsigned int tarea, unsigned int dir, unsigned char nro_pag){
 
     //Si ya estaba dibujada en el mapa, la borro
     ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_MAPA;
-    if (screen_paginas_tareas[tarea][nro_pag] != 0){
+    if (screen_paginas_tareas[tarea][nro_pag - 1] != 0){
         coordenada coord_vieja = coordenadas(screen_paginas_tareas[tarea][nro_pag - 1]);
         int f;
         int c;
@@ -99,7 +139,7 @@ void pintar_reloj_bandera(int bandera){
 
     int navio = 1;
     int c;
-    for (c = 34; c < 58; c += 3){
+    for (c = 32; c < 56; c += 3){
         print_int(navio, c, f, C_BG_MAGENTA + C_FG_WHITE, VIDEO_SCREEN);
         print("*", c + 1, f, C_BG_MAGENTA + C_FG_WHITE, VIDEO_SCREEN);
         navio++;

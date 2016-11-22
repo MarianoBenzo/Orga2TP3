@@ -20,6 +20,7 @@ extern redirigir_misil
 
 extern screen_modo_estado
 extern screen_modo_mapa
+extern pintar_buffer_bandera
 
 extern mmu_mapear_pagina
 
@@ -127,6 +128,7 @@ _isr32:
     je .noJump
     	mov [selector], ax
     	call fin_intr_pic1
+        xchg bx, bx
     	jmp far [offset]
     	jmp .fin
     .noJump:
@@ -210,6 +212,9 @@ _isrx50:
         iret
 
 _isrx66:
+    push eax
+    call pintar_buffer_bandera
+    pop eax
     mov byte [corriendoBandera], 0x00
     jmp 0xB8:0x00       ; tarea_idle
     iret

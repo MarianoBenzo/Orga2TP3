@@ -40,9 +40,11 @@ void atender_int(int n, int ebx, int ecx, int edx, int esi, int edi, int ebp, in
         case 14:
             print("Page fault", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
             break;
+        default:
+            print_int(n, 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
     }
     print("NAVIO ", 71, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
-    print_int(tarea, 77, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+    print_int(tarea + 1, 77, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
 
     print("EAX ", 51, 2, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
     print_hex(eax, 8, 55, 2, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);

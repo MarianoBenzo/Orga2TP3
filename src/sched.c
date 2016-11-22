@@ -48,11 +48,11 @@ void sched_inicializar() {
 
 // Esta funcion unicamente se encarga de devolver el indice de la proxima tarea a ejecutar, no toma en cuenta nada mas
 unsigned short sched_proximo_indice() {
-	currTask = (currTask + 1) % 8
+	currTask = (currTask + 1) % 8;
 
 	int j = 0;
 	while (tasks[currTask] == 0 && j < CANT_TAREAS){
-		currTask = (currTask + 1) % 8
+		currTask = (currTask + 1) % 8;
 		j++;
 	}
 	pintar_reloj_tarea(currTask);
@@ -112,4 +112,8 @@ void desalojar_tarea_actual(){
 
 int current_task(){
 	return currTask;
+}
+
+int current_flag(){
+	return currFlag;
 }

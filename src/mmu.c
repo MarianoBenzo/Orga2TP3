@@ -41,6 +41,12 @@ unsigned int dir_codigo_tarea(int tarea){
 	return dir_tareas[tarea];
 }
 
+unsigned int dir_funcion_bandera(int tarea){
+	unsigned int *ptr_funcion = (unsigned int*) (dir_tareas[tarea] + 0x1FFC);
+
+	return (unsigned int) (*ptr_funcion);
+}
+
 void mmu_inicializar_dir_kernel() {
 	int dir_directory = 0x27000;
 	dir_page_entry *dir_entry = (dir_page_entry*) dir_directory;

@@ -14,6 +14,7 @@ void sched_inicializar();
 unsigned short proximo_indice();
 
 int current_task();
+int current_flag();
 void desalojar_tarea_actual();
 
 #endif	/* !__SCHED_H__ */

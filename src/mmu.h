@@ -45,6 +45,7 @@ void mmu_inicializar();
 
 unsigned int prox_pagina_pila();
 unsigned int dir_codigo_tarea(int tarea);
+unsigned int dir_funcion_bandera(int tarea);
 
 void mmu_mapear_pagina(unsigned int virtual, unsigned int cr3, unsigned int fisica, unsigned char rw, unsigned char user);
 
