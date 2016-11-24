@@ -21,7 +21,7 @@ idt_descriptor IDT_DESC = {
     (unsigned int) &idt
 };
 
-void atender_int(int n, int ebx, int ecx, int edx, int esi, int edi, int ebp, int esp, int cr0, int cr2, int cr3, int cr4, int cs, int ds, int es, int fs, int gs, int ss, int eax) {
+void atender_int(int n, int ebx, int ecx, int edx, int esi, int edi, int ebp, int esp, int cr0, int cr2, int cr3, int cr4, int cs, int ds, int es, int fs, int gs, int ss, int eflags, int eip, int eax) {
     int tarea = current_task();
     desalojar_tarea_actual();
 
@@ -31,8 +31,44 @@ void atender_int(int n, int ebx, int ecx, int edx, int esi, int edi, int ebp, in
     }
 
     switch(n){
-        case 19:
-            print("Division por cero", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+        case 0:
+            print("Divide Error", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+            break;
+        case 1:
+            print("Reserved", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+            break;
+        case 2:
+            print("NMI Interrupt", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+            break;
+        case 3:
+            print("BreakPoint", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+            break;
+        case 4:
+            print("Overflow", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+            break;
+        case 5:
+            print("BOUND Range Exceeded", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+            break;
+        case 6:
+            print("Invalid Opcode", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+            break;
+        case 7:
+            print("Device Not Available", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+            break;
+        case 8:
+            print("Double Fault", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+            break;
+        case 9:
+            print("Coprocessor Segment Overrun", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+            break;
+        case 10:
+            print("Invalid TSS", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+            break;
+        case 11:
+            print("Segment Not Present", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+            break;
+        case 12:
+            print("Stack-Segment Fault", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
             break;
         case 13:
             print("General protection fault", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
@@ -40,6 +76,22 @@ void atender_int(int n, int ebx, int ecx, int edx, int esi, int edi, int ebp, in
         case 14:
             print("Page fault", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
             break;
+        case 15:
+            print("Intel Reserved", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+            break;
+        case 16:
+            print("x86 FPU Floating-Point Error", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+            break;
+        case 17:
+            print("Alignment Check", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+            break;
+        case 18:
+            print("Machine Check", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+            break;
+        case 19:
+            print("SIMD Floating-Point Exception", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
+            break;
+
         default:
             print_int(n, 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
     }
@@ -70,8 +122,8 @@ void atender_int(int n, int ebx, int ecx, int edx, int esi, int edi, int ebp, in
     print("ESP ", 51, 9, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
     print_hex(esp, 8, 55, 9, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);    
 
-    //print("EIP ", 51, 10, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    //print_hex(eip, 8, 55, 10, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);    
+    print("EIP ", 51, 10, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(eip, 8, 55, 10, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);    
 
     print("CR0 ", 51, 11, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
     print_hex(cr0, 8, 55, 11, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);    
@@ -103,8 +155,8 @@ void atender_int(int n, int ebx, int ecx, int edx, int esi, int edi, int ebp, in
     print("SS ", 66, 7, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
     print_hex(ss, 8, 69, 7, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);
 
-    //print("EFLAGS", 66, 9, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    //print_hex(eflags, 8, 69, 10, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);
+    print("EFLAGS", 66, 9, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
+    print_hex(eflags, 8, 69, 10, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);
 
     screen_modo_estado();
 }

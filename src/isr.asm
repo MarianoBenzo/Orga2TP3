@@ -12,19 +12,24 @@ BITS 32
 ;; PIC
 extern fin_intr_pic1
 
+; IDT
 extern atender_int
 extern int_teclado
 extern navegar
 extern anclar
-extern redirigir_misil
 
+; screen
+extern redirigir_misil
 extern screen_modo_estado
 extern screen_modo_mapa
 extern pintar_buffer_bandera
 
+; MMU
 extern mmu_mapear_pagina
 
+;; Scheduler
 extern proximo_indice
+extern desalojar_tarea_actual
 
 ;; Variables globales
 extern corriendoBandera
@@ -43,9 +48,12 @@ global _isrx66
 global _isr%1
 
 _isr%1:
-    ;push eflags
     push eax
     xor eax, eax
+    mov eax, [esp + 8]  ; eip
+    push eax
+    mov eax, [esp + 20] ; eflags
+    push eax
     mov ax, ss
     push eax
     mov ax, gs
@@ -66,7 +74,6 @@ _isr%1:
     push eax
     mov eax, cr0
     push eax
-    ;push eip
     push esp
     push ebp
     push edi
@@ -162,49 +169,56 @@ _isr33:
 _isrx50:
     pushad
 
-    cmp eax, 0x923
-    je .anclar
-    cmp eax, 0x83A
-    je .misilazo
-    cmp eax, 0xAEF
-    je .navegar
-    jmp .fin
+    cmp byte [corriendoBandera], 0x00
+    je .seguir
+    call desalojar_tarea_actual         ; una bandera llamo al syscall
+    mov byte [corriendoBandera], 0x00
+    jmp 0xB8:0x00
 
-    .anclar:
-        mov eax, CR3
-        push eax                ; parametro "cr3"
-        push ebx                ; parametro "fisica"
-        call anclar
-        pop ebx
-        pop eax
+    .seguir:
+        cmp eax, 0x923
+        je .anclar
+        cmp eax, 0x83A
+        je .misilazo
+        cmp eax, 0xAEF
+        je .navegar
+        jmp .fin
 
-        jmp .fin
-    .misilazo:
-        ; EBX = direccion fisica donde se disparara el misil
-        ; ECX = direccion relativa al espacio de la tarea donde se encuentra el misil
-        xor eax, eax
-        mov edx, ecx
-        mov ecx, 0x61   ; 0x61 = 97
-        .ciclo:
-            mov al, [edx]
-            mov [ebx], al
-            inc edx
-            inc eax
-            loop .ciclo
-        push ebx
-        call redirigir_misil
-        pop ebx
-        jmp .fin
-    .navegar:
-        ; EBX/ECX = direccion fisica del area de usuario para la primera/segunda pagina de codigo
-        mov eax, CR3
-        push eax
-        push ecx
-        push ebx
-        call navegar
-        pop ebx
-       	pop ecx
-       	pop eax
+        .anclar:
+            mov eax, CR3
+            push eax                ; parametro "cr3"
+            push ebx                ; parametro "fisica"
+            call anclar
+            pop ebx
+            pop eax
+
+            jmp .fin
+        .misilazo:
+            ; EBX = direccion fisica donde se disparara el misil
+            ; ECX = direccion relativa al espacio de la tarea donde se encuentra el misil
+            xor eax, eax
+            mov edx, ecx
+            mov ecx, 0x61   ; 0x61 = 97
+            .ciclo:
+                mov al, [edx]
+                mov [ebx], al
+                inc edx
+                inc eax
+                loop .ciclo
+            push ebx
+            call redirigir_misil
+            pop ebx
+            jmp .fin
+        .navegar:
+            ; EBX/ECX = direccion fisica del area de usuario para la primera/segunda pagina de codigo
+            mov eax, CR3
+            push eax
+            push ecx
+            push ebx
+            call navegar
+            pop ebx
+           	pop ecx
+           	pop eax
     .fin:
         popad
         call screen_modo_mapa
@@ -212,12 +226,23 @@ _isrx50:
         iret
 
 _isrx66:
-    push eax
-    call pintar_buffer_bandera
-    pop eax
-    mov byte [corriendoBandera], 0x00
-    jmp 0xB8:0x00       ; tarea_idle
-    iret
+    pushad
+
+    cmp byte [corriendoBandera], 0x00
+    jne .pintar
+    call desalojar_tarea_actual         ; una tarea llamo a la int 66
+    call screen_modo_estado
+    jmp .fin
+
+    .pintar:
+        push eax
+        call pintar_buffer_bandera
+        pop eax
+        mov byte [corriendoBandera], 0x00
+    .fin:
+        popad
+        jmp 0xB8:0x00       ; tarea_idle
+        iret
 
 ;; Funciones Auxiliares
 ;; -------------------------------------------------------------------------- ;;

@@ -28,7 +28,7 @@ extern idt_descriptor IDT_DESC;
 
 void idt_inicializar();
 
-void atender_int(int n, int ebx, int ecx, int edx, int esi, int edi, int ebp, int esp, int cr0, int cr2, int cr3, int cr4, int cs, int ds, int es, int fs, int gs, int ss, int eax);
+void atender_int(int n, int ebx, int ecx, int edx, int esi, int edi, int ebp, int esp, int cr0, int cr2, int cr3, int cr4, int cs, int ds, int es, int fs, int gs, int ss, int eflags, int eip, int eax);
 void int_teclado(int n);
 
 void navegar(int fisica_uno, int fisica_dos, int cr3);

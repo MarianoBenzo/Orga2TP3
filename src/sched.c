@@ -8,6 +8,7 @@
 #include "sched.h"
 #include "defines.h"
 #include "screen.h"
+#include "i386.h"
 
 // Arreglos con los selectores de segmento en la GDT + privilegios
 unsigned short tasks[CANT_TAREAS];					
@@ -83,6 +84,7 @@ unsigned short sched_proxima_bandera(){
 
 unsigned short proximo_indice(){
 	if (corriendoBandera){
+		breakpoint();
 		tasks[currFlag] = 0x00;
 		flags[currFlag] = 0x00;
 		borrar(currFlag);

@@ -107,37 +107,21 @@ void borrar(int tarea){
     unsigned char col;
     for (fila = f; fila < f + 5; fila++){
         for (col = c; col < c + 10; col++){
-            switch(fila){
-                case f:
-                    if (col < c + 2 || col > c + 7)
-                        pintar(&(e[fila][col]), C_BG_RED, 0);
-                    else
-                        pintar(&(e[fila][col]), C_BG_BLUE, 0);
-                    break;
-                case (f + 1):
-                    if ((col < c + 4 && col > c + 1) || (col < c + 8 && col > c + 5))
-                        pintar(&(e[fila][col]), C_BG_RED, 0);
-                    else
-                        pintar(&(e[fila][col]), C_BG_BLUE, 0);
-                    break;
-                case (f + 2):
-                    if (col < c + 6 && col > c + 3)
-                        pintar(&(e[fila][col]), C_BG_RED, 0);
-                    else
-                        pintar(&(e[fila][col]), C_BG_BLUE, 0);
-                    break;
-                case (f + 3):
-                    if ((col < c + 4 && col > c + 1) || (col < c + 8 && col > c + 5))
-                        pintar(&(e[fila][col]), C_BG_RED, 0);
-                    else
-                        pintar(&(e[fila][col]), C_BG_BLUE, 0);
-                    break;
-                case (f + 4):
-                    if (col < c + 2 || col > c + 7)
-                        pintar(&(e[fila][col]), C_BG_RED, 0);
-                    else
-                        pintar(&(e[fila][col]), C_BG_BLUE, 0);
-                    break;
+            if (fila == f || fila == f + 4){
+                if (col < c + 2 || col > c + 7)
+                    pintar(&(e[fila][col]), C_BG_RED, 0);
+                else
+                    pintar(&(e[fila][col]), C_BG_BLACK, 0);
+            }else if (fila == f + 1 || fila == f + 3){
+                if ((col < c + 4 && col > c + 1) || (col < c + 8 && col > c + 5))
+                    pintar(&(e[fila][col]), C_BG_RED, 0);
+                else
+                    pintar(&(e[fila][col]), C_BG_BLACK, 0);
+			}else{
+            	if (col < c + 6 && col > c + 3)
+                    pintar(&(e[fila][col]), C_BG_RED, 0);
+                else
+                    pintar(&(e[fila][col]), C_BG_BLACK, 0);
             }
         }
     }
@@ -371,7 +355,7 @@ void pintar_buffer_estado()
             pintar(&(p[f][c]), C_BG_LIGHT_GREY, 0);
 
     //imprimo letras de los navios
-    int navio = 0;
+    int navio = 1;
     for (f = 2; f < 10; f += 7)
     {
         for (c = 5; c < 51; c += 12)
