@@ -52,6 +52,97 @@ void pintar_buffer_bandera(unsigned int dir_buffer){
     }    
 }
 
+void borrar(int tarea){
+    ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_MAPA;
+    unsigned char nro_pag;
+    //La borro del mapa
+    int f;
+    int c;
+    for (nro_pag = 1; nro_pag < 4; nro_pag++){
+        if (screen_paginas_tareas[tarea][nro_pag - 1] != 0){
+            coordenada coord_vieja = coordenadas(screen_paginas_tareas[tarea][nro_pag - 1]);
+            coordenada repetido;
+            int tareaRepetida;
+            int cantRepetidos = 0;
+            for (f = 0; f < CANT_TAREAS; f++){
+                for (c = 0; c < 3; c++){
+                    if (f != tarea && c != (nro_pag - 1)){
+                        if (screen_paginas_tareas[f][c] == screen_paginas_tareas[tarea][nro_pag - 1]){
+                            cantRepetidos++;
+                            repetido = coordenadas(screen_paginas_tareas[f][c]);
+                            tareaRepetida = f;
+                        }
+                    }
+                }
+            }
+            //Si hay mas de una tarea mapeada ahi, la dejo
+            if (cantRepetidos == 1){
+                print_int(tareaRepetida + 1, repetido.col, repetido.fila, C_FG_WHITE + C_BG_BROWN, VIDEO_MAPA);
+            }else if (cantRepetidos == 0){
+                if (nro_pag == 3)
+                    pintar(&(p[coord_vieja.fila][coord_vieja.col]), C_BG_GREEN, 0);
+                else
+                    pintar(&(p[coord_vieja.fila][coord_vieja.col]), C_BG_CYAN, 0);
+            }
+        }
+    }
+
+    ca (*e)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_ESTADO;
+    //Borro su bandera
+    if (tarea < 4)
+        f = 3;
+    else
+        f = 10;
+
+    if (tarea == 0 || tarea == 4)
+        c = 2;
+    else if (tarea == 1 || tarea == 5)
+        c = 14;
+    else if (tarea == 2 || tarea == 6)
+        c = 26;
+    else
+        c = 38;
+
+    unsigned char fila;
+    unsigned char col;
+    for (fila = f; fila < f + 5; fila++){
+        for (col = c; col < c + 10; col++){
+            switch(fila){
+                case f:
+                    if (col < c + 2 || col > c + 7)
+                        pintar(&(e[fila][col]), C_BG_RED, 0);
+                    else
+                        pintar(&(e[fila][col]), C_BG_BLUE, 0);
+                    break;
+                case (f + 1):
+                    if ((col < c + 4 && col > c + 1) || (col < c + 8 && col > c + 5))
+                        pintar(&(e[fila][col]), C_BG_RED, 0);
+                    else
+                        pintar(&(e[fila][col]), C_BG_BLUE, 0);
+                    break;
+                case (f + 2):
+                    if (col < c + 6 && col > c + 3)
+                        pintar(&(e[fila][col]), C_BG_RED, 0);
+                    else
+                        pintar(&(e[fila][col]), C_BG_BLUE, 0);
+                    break;
+                case (f + 3):
+                    if ((col < c + 4 && col > c + 1) || (col < c + 8 && col > c + 5))
+                        pintar(&(e[fila][col]), C_BG_RED, 0);
+                    else
+                        pintar(&(e[fila][col]), C_BG_BLUE, 0);
+                    break;
+                case (f + 4):
+                    if (col < c + 2 || col > c + 7)
+                        pintar(&(e[fila][col]), C_BG_RED, 0);
+                    else
+                        pintar(&(e[fila][col]), C_BG_BLUE, 0);
+                    break;
+            }
+        }
+    }
+}
+
 void redirigir_misil(unsigned int dir){
     coordenada nuevo_misil = coordenadas(dir);
     ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_MAPA;

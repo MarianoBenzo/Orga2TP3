@@ -85,6 +85,7 @@ unsigned short proximo_indice(){
 	if (corriendoBandera){
 		tasks[currFlag] = 0x00;
 		flags[currFlag] = 0x00;
+		borrar(currFlag);
 	}
 	if (modoBandera){
 		corriendoBandera = TRUE;
@@ -104,9 +105,11 @@ void desalojar_tarea_actual(){
 	if (corriendoBandera){
 		flags[currFlag] = 0x00;
 		tasks[currFlag] = 0x00;
+		borrar(currFlag);
 	} else{
 		flags[currTask] = 0x00;
 		tasks[currTask] = 0x00;
+		borrar(currTask);
 	}
 }
 
