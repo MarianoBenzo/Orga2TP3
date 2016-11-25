@@ -118,3 +118,7 @@ void tss_inicializar() {
 	}
 }
 
+void reiniciar_bandera(int flag){
+	tss_banderas[flag].eip = 0x40000000 + dir_funcion_bandera(flag);
+}
+

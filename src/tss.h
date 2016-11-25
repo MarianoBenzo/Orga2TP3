@@ -56,5 +56,6 @@ extern tss tarea_idle;
 extern tss tarea_dibujar;
 
 void tss_inicializar();
+void reiniciar_bandera(int flag);
 
 #endif  /* !__TSS_H__ */

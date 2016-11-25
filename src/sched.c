@@ -8,6 +8,7 @@
 #include "sched.h"
 #include "defines.h"
 #include "screen.h"
+#include "tss.h"
 #include "i386.h"
 
 // Arreglos con los selectores de segmento en la GDT + privilegios
@@ -74,7 +75,11 @@ unsigned short sched_proxima_bandera(){
 		if (currFlag == CANT_TAREAS)	// si currFlag es 8, no se va a ejecutar una bandera y no se pone en false
 			corriendoBandera = FALSE;
 	}
-	pintar_reloj_bandera(currFlag);
+
+	if (currFlag < CANT_TAREAS){
+		reiniciar_bandera(currFlag);
+		pintar_reloj_bandera(currFlag);
+	}
 
 	if (currFlag == CANT_TAREAS)
 		return 0;
@@ -84,7 +89,6 @@ unsigned short sched_proxima_bandera(){
 
 unsigned short proximo_indice(){
 	if (corriendoBandera){
-		breakpoint();
 		tasks[currFlag] = 0x00;
 		flags[currFlag] = 0x00;
 		borrar(currFlag);
