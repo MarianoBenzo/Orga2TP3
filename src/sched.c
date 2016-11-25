@@ -53,7 +53,7 @@ unsigned short sched_proximo_indice() {
 	currTask = (currTask + 1) % 8;
 
 	int j = 0;
-	while (tasks[currTask] == 0 && j < CANT_TAREAS){
+	while (tasks[currTask] == 0 && j < CANT_TAREAS - 1){
 		currTask = (currTask + 1) % 8;
 		j++;
 	}
