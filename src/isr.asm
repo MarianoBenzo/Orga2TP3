@@ -172,6 +172,7 @@ _isrx50:
     cmp byte [corriendoBandera], 0x00
     je .seguir
     call desalojar_tarea_actual         ; una bandera llamo al syscall
+    call screen_modo_estado
     mov byte [corriendoBandera], 0x00
     jmp 0xB8:0x00
 

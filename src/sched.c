@@ -120,7 +120,10 @@ void desalojar_tarea_actual(){
 }
 
 int current_task(){
-	return currTask;
+	if (corriendoBandera)
+		return currFlag;
+	else
+		return currTask;
 }
 
 int current_flag(){

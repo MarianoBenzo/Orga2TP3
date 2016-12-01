@@ -60,13 +60,12 @@ void borrar(int tarea){
     int c;
     for (nro_pag = 1; nro_pag < 4; nro_pag++){
         if (screen_paginas_tareas[tarea][nro_pag - 1] != 0){
-            coordenada coord_vieja = coordenadas(screen_paginas_tareas[tarea][nro_pag - 1]);
             coordenada repetido;
             int tareaRepetida;
             int cantRepetidos = 0;
             for (f = 0; f < CANT_TAREAS; f++){
                 for (c = 0; c < 3; c++){
-                    if (f != tarea && c != (nro_pag - 1)){
+                    if (f != tarea){
                         if (screen_paginas_tareas[f][c] == screen_paginas_tareas[tarea][nro_pag - 1]){
                             cantRepetidos++;
                             repetido = coordenadas(screen_paginas_tareas[f][c]);
@@ -76,6 +75,7 @@ void borrar(int tarea){
                 }
             }
             //Si hay mas de una tarea mapeada ahi, la dejo
+            coordenada coord_vieja = coordenadas(screen_paginas_tareas[tarea][nro_pag - 1]);
             if (cantRepetidos == 1){
                 print_int(tareaRepetida + 1, repetido.col, repetido.fila, C_FG_WHITE + C_BG_BROWN, VIDEO_MAPA);
             }else if (cantRepetidos == 0){
@@ -84,6 +84,7 @@ void borrar(int tarea){
                 else
                     pintar(&(p[coord_vieja.fila][coord_vieja.col]), C_BG_CYAN, 0);
             }
+            screen_paginas_tareas[tarea][nro_pag - 1] = 0;
         }
     }
 
@@ -131,10 +132,13 @@ void redirigir_misil(unsigned int dir){
     coordenada nuevo_misil = coordenadas(dir);
     ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_MAPA;
 
-    pintar(&(p[nuevo_misil.fila][nuevo_misil.col]), C_BG_BLACK, 0);
+    pintar(&(p[nuevo_misil.fila][nuevo_misil.col]), C_BG_RED, 0);
 
-    if (ultimo_misil.col != 0 && ultimo_misil.fila != 0)
+    if (ultimo_misil.fila != 0)
         pintar(&(p[ultimo_misil.fila][ultimo_misil.col]), C_BG_CYAN, 0);
+
+    ultimo_misil.fila = nuevo_misil.fila;
+    ultimo_misil.col  = nuevo_misil.col;
 }
 
 void asignar_dir(unsigned int tarea, unsigned int dir, unsigned char nro_pag){
@@ -184,7 +188,7 @@ void asignar_dir(unsigned int tarea, unsigned int dir, unsigned char nro_pag){
     
     if (p[y][x].c != 0){
         //Hay otra pagina mapeada en el mismo lugar!
-        print("X", y, x, C_FG_WHITE + C_BG_MAGENTA, VIDEO_MAPA);
+        print("X", x, y, C_FG_WHITE + C_BG_MAGENTA, VIDEO_MAPA);
     } else{
         print_int(tarea + 1, x, y, C_FG_WHITE + C_BG_BROWN, VIDEO_MAPA);
     }
@@ -463,15 +467,25 @@ void pintar_banderas(unsigned int navio)
 	{
 		int f = 3;
 		for(i = f; i < f + 5; i++)
-		{
-			int c = 2;
-			for(j = c; j < c + 10;j++)
-			{
-				if((j==c || j == c+9) || (i > f && j > c+1 && i < f + 4 && j < c + 8))
-					pintar(&(p[i][j]),C_BG_CYAN,0);
-				else
-					pintar(&(p[i][j]),C_BG_RED,0);
-			}		
+		{	
+            int c = 2;
+            for(j = c; j < c + 10;j++)
+            {
+                if(i == f + 4)
+                {
+                    if(j > c+1 && j < c+8)
+                        pintar(&(p[i][j]),C_BG_RED,0);
+                    else
+                        pintar(&(p[i][j]),C_BG_CYAN,0);
+                }
+                else
+                {
+                    if(j > c + 3 && j < c + 6)
+                        pintar(&(p[i][j]),C_BG_RED,0);
+                    else
+                        pintar(&(p[i][j]),C_BG_CYAN,0);
+                }
+            }
 		}
 	}
 	if(navio == 1)
@@ -480,24 +494,44 @@ void pintar_banderas(unsigned int navio)
 		for(i = f; i < f + 5;i++)
 		{	
 			int c = 14;
-			for(j = c; j < c + 10;j++)
-			{
-				if(i == f + 4)
-				{
-					if(j > c+1 && j < c+8)
-						pintar(&(p[i][j]),C_BG_RED,0);
-					else
-						pintar(&(p[i][j]),C_BG_CYAN,0);
-
-				}
-				else
-				{
-					if(j > c + 3 && j < c + 6)
-						pintar(&(p[i][j]),C_BG_RED,0);
-					else
-						pintar(&(p[i][j]),C_BG_CYAN,0);
-				}
-			}
+            for(j = c; j < c+10;j++)
+            {
+                if(i == f)
+                {
+                    if(j > c + 1 && j < c+8)
+                        pintar(&(p[i][j]),C_BG_RED,0);                      
+                    else
+                        pintar(&(p[i][j]),C_BG_CYAN,0);
+                }
+                if(i == f+1)
+                {
+                    if((j > c && j < c+3) || (j > c+6 && j < c+9))
+                        pintar(&(p[i][j]),C_BG_RED,0);                      
+                    else
+                        pintar(&(p[i][j]),C_BG_CYAN,0);
+                }
+                if(i == f+2)
+                {
+                    if(j > c+4 && j < c+7)
+                        pintar(&(p[i][j]),C_BG_RED,0);                      
+                    else
+                        pintar(&(p[i][j]),C_BG_CYAN,0);
+                }
+                if(i == f+3)
+                {
+                    if(j > c+2 && j < c+5)
+                        pintar(&(p[i][j]),C_BG_RED,0);                      
+                    else
+                        pintar(&(p[i][j]),C_BG_CYAN,0);
+                }
+                if(i == f+4)
+                {
+                    if(j > c && j < c+9)
+                        pintar(&(p[i][j]),C_BG_RED,0);                      
+                    else
+                        pintar(&(p[i][j]),C_BG_CYAN,0);
+                }
+            }
 		}
 	}
 	if(navio == 2)
@@ -506,45 +540,20 @@ void pintar_banderas(unsigned int navio)
 		for(i = f; i < f+5;i++)
 		{
 			int c = 26;
-			for(j = c; j < c+10;j++)
-			{
-				if(i == f)
-				{
-					if(j > c + 1 && j < c+8)
-						pintar(&(p[i][j]),C_BG_RED,0);						
-					else
-						pintar(&(p[i][j]),C_BG_CYAN,0);
-				}
-				if(i == f+1)
-				{
-					if((j > c && j < c+3) || (j > c+6 && j < c+9))
-						pintar(&(p[i][j]),C_BG_RED,0);						
-					else
-						pintar(&(p[i][j]),C_BG_CYAN,0);
-				}
-				if(i == f+2)
-				{
-					if(j > c+4 && j < c+7)
-						pintar(&(p[i][j]),C_BG_RED,0);						
-					else
-						pintar(&(p[i][j]),C_BG_CYAN,0);
-				}
-				if(i == f+3)
-				{
-					if(j > c+2 && j < c+5)
-						pintar(&(p[i][j]),C_BG_RED,0);						
-					else
-						pintar(&(p[i][j]),C_BG_CYAN,0);
-				}
-				if(i == f+4)
-				{
-					if(j > c && j < c+9)
-						pintar(&(p[i][j]),C_BG_RED,0);						
-					else
-						pintar(&(p[i][j]),C_BG_CYAN,0);
-				}
-			}
-			
+            for(j = c; j < c+10;j++)
+            {
+                if(i == f || i == f+4)
+                {
+                    pintar(&(p[i][j]),C_BG_RED,0);
+                }
+                else
+                {
+                    if(j == c+9 || (i == f+2 && j > c+5))
+                        pintar(&(p[i][j]),C_BG_RED,0);
+                    else
+                        pintar(&(p[i][j]),C_BG_CYAN,0);             
+                }
+            }
 		}
 	}
 	if(navio == 3)
@@ -553,43 +562,44 @@ void pintar_banderas(unsigned int navio)
 		for(i = f; i < f+5;i++)
 		{
 			int c = 38;
-			for(j = c; j < c+10;j++)
-			{
-				if(i == f || i == f+4)
-				{
-					pintar(&(p[i][j]),C_BG_RED,0);
-				}
-				else
-				{
-					if(j == c+9 || (i == f+2 && j > c+5))
-						pintar(&(p[i][j]),C_BG_RED,0);
-					else
-						pintar(&(p[i][j]),C_BG_CYAN,0);				
-				}
-			}
+            for(j = c; j < c+10;j++)
+            {
+                if((j>c && j < c+3 && i< f+2) || (j>c+5 && j <c+8))
+                {
+                    pintar(&(p[i][j]),C_BG_RED,0);
+                }
+                else if(i == f+2 && j > c+1 && j < c+8)
+                {
+                    pintar(&(p[i][j]),C_BG_RED,0);
+                }
+                else
+                {
+                    pintar(&(p[i][j]),C_BG_CYAN,0);
+                }
+            }
 		}
 	}
 	if(navio == 4)
 	{
 		int f = 10;
-		for(i = f; i < f+5;i++)
+		for(i = f; i < f + 5; i++)
 		{
-			int c = 2;
-			for(j = c; j < c+10;j++)
-			{
-				if((j>c && j < c+3 && i< f+2) || (j>c+5 && j <c+8))
-				{
-					pintar(&(p[i][j]),C_BG_RED,0);
-				}
-				else if(i == f+2 && j > c+1 && j < c+8)
-				{
-					pintar(&(p[i][j]),C_BG_RED,0);
-				}
-				else
-				{
-					pintar(&(p[i][j]),C_BG_CYAN,0);
-				}
-			}
+            int c = 2;
+            for(j = c; j < c+10;j++)
+            {
+                if(i % 2 == 0)
+                {
+                    pintar(&(p[i][j]),C_BG_RED,0);
+                }
+                else if((j == c && i < f+2) || (j == c+9 && i > f+1))
+                {
+                    pintar(&(p[i][j]),C_BG_RED,0);
+                }
+                else
+                {
+                    pintar(&(p[i][j]),C_BG_CYAN,0);
+                }
+            }
 		}
 	}
 	if(navio == 5)
@@ -597,75 +607,68 @@ void pintar_banderas(unsigned int navio)
 		int f = 10;
 		for(i = f; i < f+5;i++)
 		{
-			int c=14;
-			for(j = c; j < c+10;j++)
-			{
-				if(i % 2 == 0)
-				{
-					pintar(&(p[i][j]),C_BG_RED,0);
-				}
-				else if((j == c && i < f+2) || (j == c+9 && i > f+1))
-				{
-					pintar(&(p[i][j]),C_BG_RED,0);
-				}
-				else
-				{
-					pintar(&(p[i][j]),C_BG_CYAN,0);
-				}
-			}
+            int c = 14;
+            for(j = c; j < c+10;j++)
+            {
+                if(i % 2 == 0)
+                {
+                    pintar(&(p[i][j]),C_BG_RED,0);
+                }
+                else if(j == c || (j == c+9 && i > f+1))
+                {
+                    pintar(&(p[i][j]),C_BG_RED,0);
+                }
+                else
+                {
+                    pintar(&(p[i][j]),C_BG_CYAN,0);
+                }
+            }
 		}
 	}
 	if(navio == 6)
 	{
-		int f = 10;
-		
-		for(i = f; i < f+5;i++)
-		{
-			int c = 26;
-			for(j = c; j < c+10;j++)
-			{
-				if(i % 2 == 0)
-				{
-					pintar(&(p[i][j]),C_BG_RED,0);
-				}
-				else if(j == c || (j == c+9 && i > f+1))
-				{
-					pintar(&(p[i][j]),C_BG_RED,0);
-				}
-				else
-				{
-					pintar(&(p[i][j]),C_BG_CYAN,0);
-				}
-			}
-		}
+        int f = 10;
+        int a = 7;
+        int b = 10;
+        for(i = f; i < f+5;i++)
+        {
+            int c = 26;
+            for(j = c; j < c+10;j++)
+            {
+                if(i == f)
+                {
+                    pintar(&(p[i][j]),C_BG_RED,0);
+                }
+                else
+                {
+                    if(j > c + a && j < c + b)
+                        pintar(&(p[i][j]),C_BG_RED,0);
+                    else
+                        pintar(&(p[i][j]),C_BG_CYAN,0);
+                    
+                }
+            }
+            a = a-2;
+            b = b-2;
+        }
 	}
 	if(navio == 7)
 	{
 		int f = 10;
-		int a = 7;
-		int b = 10;
-		for(i = f; i < f+5;i++)
-		{
-			int c = 38;
-			for(j = c; j < c+10;j++)
-			{
-				if(i == f)
-				{
-					pintar(&(p[i][j]),C_BG_RED,0);
-				}
-				else
-				{
-					if(j > c + a && j < c + b)
-						pintar(&(p[i][j]),C_BG_RED,0);
-					else
-						pintar(&(p[i][j]),C_BG_CYAN,0);
-					
-				}
-			}
-			a = a-2;
-			b = b-2;
-		}
-	}
+       
+        for(i=f; i < f + 5; i++)
+        {   int c = 38;
+            for(j = c; j < c + 10;j++)
+            {
+                if((i == f || i == f+2 || i == f+4) &&(j > c+2 && j< c+7))
+                    pintar(&(p[i][j]),C_BG_RED,0);
+                else if ((j == c +2 || j == c+7) && (i == f+1 || i == f+3))
+                    pintar(&(p[i][j]),C_BG_RED,0);
+                else
+                    pintar(&(p[i][j]),C_BG_CYAN,0);
+            }   
+	   }
+    }
 }
 
 
