@@ -49,11 +49,11 @@ global _isr%1
 
 _isr%1:
     push eax
-    xor eax, eax
     mov eax, [esp + 8]  ; eip
     push eax
     mov eax, [esp + 20] ; eflags
     push eax
+    xor eax, eax
     mov ax, ss
     push eax
     mov ax, gs
@@ -174,7 +174,7 @@ _isrx50:
     call desalojar_tarea_actual         ; una bandera llamo al syscall
     call screen_modo_estado
     mov byte [corriendoBandera], 0x00
-    jmp 0xB8:0x00
+    jmp 0xB8:0x00						; la tarea no se va a volver a ejecutar, completa su quantum en idle
 
     .seguir:
         cmp eax, 0x923
@@ -221,8 +221,8 @@ _isrx50:
            	pop ecx
            	pop eax
     .fin:
-        popad
         call screen_modo_mapa
+        popad
         jmp 0xB8:0x00
         iret
 
