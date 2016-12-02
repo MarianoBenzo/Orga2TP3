@@ -115,11 +115,18 @@
 
 \section{Detalles de la implementación}
 
-Para la implementación del kernel, se hizo uso de varios archivos auxiliares que se encargan de una porción en particular de la implementación. Ya que cada archivo representa una clase distinta, los atributos propios de cada archivo se mantuvieron privados dentro de la clase; es decir, la única manera de modificar los atributos es a través de métodos de la clase.
+Para la implementación del kernel, se hizo uso de varios archivos auxiliares que se encargan de una porción en particular de la implementación. Ya que cada archivo se encarga de modificar una estructura del kernel distinta, los métodos que modifican a cada estructura se mantuvieron privados a su respectivo archivo; es decir, la única manera de modificar dichas estructuras es a través de los métodos de sus respectivos archivos.
 
 La única variable global que es accedida por todas las clases es la variable \textit{corriendoBandera}, la cual indica si se encuentra la función de alguna bandera en ejecución. Se implementó de esta manera para permitir escribir directamente sobre ella al momento de llamar a Int 0x66.
+
+
+Por lo demás, se mantuvo una concordancia con respecto al nombre del archivo y los métodos que se implementan en él. Por ejemplo, \textit{screen.c} contiene todos los métodos para imprimir en pantalla, y ningún otro archivo posee métodos que impriman en pantalla.
 \\
-Por lo demás, se mantuvo una concordancia con respecto al nombre de la clase y los métodos que implementan. Por ejemplo, \textit{screen.c} contiene todos los métodos para imprimir en pantalla y ninguna otra clase posee métodos que impriman en pantalla.
+
+Por otro lado, cada vez que se produce algún cambio en alguno de los \textit{buffers} de pantalla (por ejemplo, al producirse una excepción o cuando una tarea ejecuta un \textit{syscall}), se dibuja sobre la pantalla el \textit{buffer} que haya sido modificado. De esta manera, se pueden apreciar automáticamente los cambios que se van produciendo. Sin embargo, ya que el \textit{quantum} de cada tarea es de un \textit{tick} de reloj, los cambios se producen muy rápidamente, impidiendo que se observen en pantalla. Por ello, dejamos incluido un \textit{breakpoint} justo antes de realizar el salto a la próxima tarea, de manera que se aprecien los cambios en cada iteración.
+\\
+
+Ya que las funciones bandera deben ejecutarse cada vez que se ejecuta la tarea bandera, antes de saltar a la respectiva tarea de la bandera, se posiciona el registro EIP de su TSS sobre el principio de la función bandera (el método que lo realiza se llama \textit{void reiniciar_bandera(int flag)}, ubicado en \textit{tss.c}). De esta manera, una vez que se terminó de ejecutar la función, se asegura que la próxima vez que sea ejecutada, la misma comience desde el principio y no al final.
 
 
 \subsection{kernel.asm}
@@ -170,7 +177,7 @@ Para facilitar el acceso a los índices, en el archivo \textit{defines.h} se def
 \subsection{idt.c}
 \textit{idt.c} se encarga de manejar cualquier cosa relacionado con interrupciones (junto con el archivo \textit{isr.asm}). El método \textit{idt_inicializar()} completa la tabla IDT según lo visto en clase y utilizando la estructura provista por la cátedra.
 
-El método \textit{atender_int(interrupcion, registros)} se encarga de escribir en pantalla, mediante métodos de \textit{screen.c}, la excepción ocurrida (junto con la información pertinente) y de invocar a métodos de \textit{sched.c} para desalojar la tarea que haya provocado la excepción.
+El método \textit{atender_int(interrupcion, registros[])} se encarga de escribir en pantalla, mediante métodos de \textit{screen.c}, la excepción ocurrida (junto con la información pertinente) y de invocar a métodos de \textit{sched.c} para desalojar la tarea que haya provocado la excepción.
 
 El método \textit{int_teclado(makeCode)} se encarga de manejar las interrupciones de teclado.
 
@@ -206,26 +213,57 @@ El resto de las interrupciones simplemente invocan a los métodos en \textit{idt
 \begin{verbatim}
 _isrx66:
     pushad
-    call fin_intr_pic1
-    mov byte [corriendoBandera], 0x00
-    popad
-    jmp 0xB8:0x00       ; tarea_idle
-    iret
+
+    cmp byte [corriendoBandera], 0x00
+    jne .pintar
+    call desalojar_tarea_actual         ; una tarea llamo a la int 66
+    call screen_modo_estado
+    jmp .fin
+
+    .pintar:
+        push eax
+        call pintar_buffer_bandera
+        pop eax
+        mov byte [corriendoBandera], 0x00
+    .fin:
+        popad
+        jmp 0xB8:0x00       ; tarea_idle
+        iret
 \end{verbatim}
 \end{codesnippet}
 
-\subsection{mmu.c}
-Este archivo únicamente se encarga de generar los mapas de memoria, conteniendo métodos para generar el mapa de memoria del kernel (\textit{mmu_inicializar_dir_kernel()} y para generar el mapa de memoria de una tarea determinada (\textit{mmu_inicializar_dir_tarea(tarea, dir)}). Como la pantalla en modo \textit{mapa} muestra dónde están mapeadas las páginas de las tareas, dentro de dicho método se invoca a la función \textit{asignar_dir(tarea, dir, pagina)} de la clase \textit{screen.c} para dibujarlas en el \textit{buffer} del mapa.
+Como se puede apreciar, se utiliza dicha variable global para analizar quién realizó la interrupción. En caso de que haya sido una bandera, se procede a dibujar el \textit{buffer} devuelto por la misma sobre la pantalla.
 
-Por otro lado, contiene una variable propia de la clase (\textit{int} p) que contiene la dirección de memoria física donde se ubicará la próxima página. Luego, mediante el método \textit{prox_pagina()} cualquier clase puede pedir un puntero a una página de memoria lista para ser escrita. 
+\subsection{mmu.c}
+Este archivo únicamente se encarga de generar los mapas de memoria, conteniendo métodos para generar el mapa de memoria del kernel (\textit{mmu_inicializar_dir_kernel()} y para generar el mapa de memoria de una tarea determinada (\textit{mmu_inicializar_dir_tarea(tarea, direccion)}). 
+
+Como la pantalla en modo \textit{mapa} muestra dónde están mapeadas las páginas de las tareas, dentro de dicho método se invoca a la función \textit{asignar_dir(tarea, direccion, pagina)} de la clase \textit{screen.c} para dibujarlas en el \textit{buffer} del mapa.
+\\
+
+Por otro lado, contiene una variable propia del archivo (\textit{int} p) que contiene la dirección de memoria física donde se ubicará la próxima página. Luego, mediante el método \textit{prox_pagina()}, cualquier otro archivo puede pedir un puntero a una página de memoria lista para ser escrita.
+
+También es necesario saber dónde se ubica la función bandera cuando se inicializan las TSS de las banderas, por lo que este archivo implementa un método que retorna la dirección física sobre la cual se ubica la función bandera:
+\begin{codesnippet}
+\begin{verbatim}
+unsigned int dir_funcion_bandera(int tarea){
+    unsigned int *ptr_funcion = (unsigned int*) (dir_tareas[tarea] + 0x1FFC);
+    
+    return (unsigned int) (*ptr_funcion);
+}
+\end{verbatim}
+\end{codesnippet}
 
 \subsection{screen.c}
-Acá se encuentran todos los métodos pertinentes para imprimir en pantalla. Los métodos \textit{pintar_buffer_mapa()}, \textit{pintar_buffer_estado()} y \textit{pintar_scheduler()} se encargan de generar una base sobre la cual se imprimirán datos a medida que se ejecutan las tareas.
+Acá se encuentran todos los métodos pertinentes para imprimir en pantalla. Los métodos \textit{pintar_buffer_mapa()}, \textit{pintar_buffer_estado()} y \textit{pintar_scheduler()} se encargan de generar una base sobre la cual se imprimirán datos a medida que se ejecutan las tareas (y, por lo tanto, son invocados antes de que se empiecen a ejecutar las tareas).
 
+El método \textit{pintar_buffer_bandera(dir_buffer)} se encarga de dibujar donde corresponde lo devuelto por la función bandera.
+\\
 
-En particular, \textit{coordenadas(dir)} se encarga de convertir una dirección de memoria en una posición de la pantalla. Luego, es utilizado por la función \textit{asignar_dir(tarea, dir, pagina)}, la cual se encarga de actualizar los datos de las tareas tanto en el \textit{buffer} de estado como en el \textit{buffer} de mapa.
+En particular, \textit{coordenadas(direccion)} se encarga de convertir una dirección de memoria en una posición de la pantalla. Luego, es utilizado por la función \textit{asignar_dir(tarea, direccion, pagina)}, la cual se encarga de actualizar los datos de las tareas tanto en el \textit{buffer} de estado como en el \textit{buffer} de mapa.
 
-Por otro lado, el método \textit{redigir_misil(dir)} se encarga de dibujar a dónde fue dirigido el último misil y borra del mapa al anterior.
+Por otro lado, el método \textit{redigir_misil(direccion)} se encarga de dibujar a dónde fue dirigido el último misil y borra del mapa al anterior.
+
+Por último, el método \textit{borrar(tarea)} se encarga de eliminar del \textit{buffer} de mapa todos los datos de la tarea pasada por parámetro, además de reemplazar la bandera de la tarea por una cruz (en el \textit{buffer} de estado).
 \\
 
 Ya que es necesario saber dónde se ubicaban en la arena las tareas y misiles previamente a ser modificados, la clase contiene una matriz que almacena las direcciones físicas donde están mapeadas las páginas de las tareas y se posee otra variable que indica la coordenada del último misil lanzado. De esta manera, se pueden borrar del mapa una vez que sus valores son modificados.
@@ -240,15 +278,24 @@ Si bien este archivo simplemente se encarga de crear y completar las estructuras
 Por empezar, es aquí donde se asignan en la tabla GDT las direcciones \textit{base} de las entradas de las \textit{tss}, mediante el puntero a la estructura. Para realizar esto, se utilizan macros muy similares a los provistos por la cátedra para completar la tabla IDT.
 
 
-Por otro lado, el método \textit{tss_inicializar()} a la vez que completa los datos sobre las \textit{tss} de las tareas, invoca al método descripto anteriormente \textit{mmu_inicializar_dir_tarea(tarea, dir)}, el cual genera el mapa de memoria de la tarea especificada. De esta manera, es más fácil asignarle el puntero a donde se ubica el directorio de páginas de cada tarea (campo \textit{cr3} de la estructura):
+Por otro lado, el método \textit{tss_inicializar()} a la vez que completa los datos sobre las \textit{tss} de las tareas, invoca al método \textit{mmu_inicializar_dir_tarea(tarea, dir)} descripto anteriormente, el cual genera el mapa de memoria de la tarea especificada. De esta manera, es más fácil asignarle el puntero a donde se ubica el directorio de páginas de cada tarea (campo \textit{cr3} de la estructura):
 \begin{codesnippet}
 \begin{verbatim}
 tss_navios[i].cr3    = mmu_inicializar_dir_tarea(i, mar);
 \end{verbatim}
 \end{codesnippet}
 
+Además, contiene el método necesario para reinstaurar la ejecución de la función bandera a su inicio:
+\begin{codesnippet}
+\begin{verbatim}
+void reiniciar_bandera(int flag){
+    tss_banderas[flag].eip = 0x40000000 + dir_funcion_bandera(flag);
+}
+\end{verbatim}
+\end{codesnippet}
+
 \subsection{sched.c}
-La implementación del \textit{scheduler} contiene variables propias de la clase que indican qué tarea se está ejecutando (\textit{int} currTask), qué bandera se está ejecutando (\textit{int} currFlag), si corresponde ejecutar las banderas (\textit{char} modoBandera) y cuánto falta para ejecutar las banderas (\textit{char} cicloBandera). A su vez, posee dos arreglos (\textit{tasks} y \textit{flags}) de tamaño equivalente a la cantidad de tareas donde se almacenan los selectores de segmento para cada tarea o bandera, según corresponda.
+La implementación del \textit{scheduler} contiene variables propias que indican qué tarea se está ejecutando (\textit{int} currTask), qué bandera se está ejecutando (\textit{int} currFlag), si corresponde ejecutar las banderas (\textit{char} modoBandera) y cuánto falta para ejecutar las banderas (\textit{char} cicloBandera). A su vez, posee dos arreglos (\textit{tasks} y \textit{flags}) de tamaño equivalente a la cantidad de tareas donde se almacenan los selectores de segmento para cada tarea o bandera, según corresponda.
 \\
 
 El método más importante de la clase es \textit{proximo_indice()}, que se encarga de devolver el selector de segmento de la tarea (o bandera) a la cual corresponda saltar:
@@ -258,6 +305,7 @@ unsigned short proximo_indice(){
     if (corriendoBandera){
         tasks[currFlag] = 0x00;
         flags[currFlag] = 0x00;
+        borrar(currFlag);
     }
     if (modoBandera){
         corriendoBandera = TRUE;
@@ -275,9 +323,10 @@ unsigned short proximo_indice(){
 
 Al principio, se verifica si se estaba ejecutando una bandera. En caso de hacerlo, corresponde que no se vuelva a ejecutar dicha tarea, por lo cual se fija en 0 sus respectivos valores en los arreglos. Por invariante, si un selector de segmento dentro del arreglo es 0, se interpreta que la tarea no puede ser ejecutada y se la saltea.
 
-Luego, se fija si corresponde ejecutar las banderas, por lo cual fija en \textit{true} la variable global \textit{corriendoBandera} (que indica si se está ejecutando una bandera) y llama al método \textit{sched_proxima_bandera()} que retorna el selector de segmento de la próxima bandera a ejecutar.
+Luego, se fija si corresponde ejecutar las banderas, en cuyo caso fija en \textit{true} la variable global \textit{corriendoBandera} (que indica si se está ejecutando una bandera) y llama al método \textit{sched_proxima_bandera()} que retorna el selector de segmento de la próxima bandera a ejecutar.
+\\
 
-En caso de que no haya que correr las banderas, se aumenta el contador \textit{cicloBandera} y se setea en el valor inicial a \textit{currFlag}. Si ya se ejecutaron tres tareas seguidas, se activa el \textit{modoBandera} para ejecutar las banderas en la próxima interrupción de reloj. Una vez hecho eso, se invoca al método \textit{sched_proximo_indice()} que retorna el selector de segmento de la próxima tarea a ejecutar.
+En caso de que no haya que correr las banderas, se aumenta el contador \textit{cicloBandera} y se setea en su valor inicial a \textit{currFlag}. Si ya se ejecutaron tres tareas seguidas, se activa el \textit{modoBandera} para ejecutar las banderas en la próxima interrupción de reloj. Una vez hecho eso, se invoca al método \textit{sched_proximo_indice()} que retorna el selector de segmento de la próxima tarea a ejecutar.
 
 
 Los métodos \textit{sched_proximo_indice()} y \textit{sched_proxima_bandera()} aumentan \textit{currTask} o \textit{currFlag} al principio (por ello se los setea en -1 al inicializarlos). Luego, recorren sus respectivos arreglos (\textit{tasks} y \textit{flags}) hasta encontrar algún índice que no sea 0. En caso de que todos sean 0, el método devuelve 0. Una vez encontrado la próxima tarea/bandera a ejecutar, se invoca a una función de \textit{screen.c} para que actualice en pantalla la tarea o bandera que se está ejecutando, y retorna el selector de segmento de la tarea/bandera a ejecutar.
