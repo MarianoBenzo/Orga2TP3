@@ -27,6 +27,7 @@ typedef struct coordenada_s {
 } coordenada;
 
 coordenada coordenadas(unsigned int dir);
+unsigned char modo_pantalla();
 
 void asignar_dir(unsigned int tarea, unsigned int dir, unsigned char nro_pag);
 void redirigir_misil(unsigned int dir);

@@ -135,7 +135,7 @@ _isr32:
     je .noJump
     	mov [selector], ax
     	call fin_intr_pic1
-        xchg bx, bx
+        ;xchg bx, bx
     	jmp far [offset]
     	jmp .fin
     .noJump:
@@ -172,7 +172,7 @@ _isrx50:
     cmp byte [corriendoBandera], 0x00
     je .seguir
     call desalojar_tarea_actual         ; una bandera llamo al syscall
-    call screen_modo_estado
+    ;call screen_modo_estado
     mov byte [corriendoBandera], 0x00
     jmp 0xB8:0x00						; la tarea no se va a volver a ejecutar, completa su quantum en idle
 
@@ -221,8 +221,8 @@ _isrx50:
            	pop ecx
            	pop eax
     .fin:
-        call screen_modo_mapa
         popad
+        ;call screen_modo_mapa
         jmp 0xB8:0x00
         iret
 
@@ -232,7 +232,7 @@ _isrx66:
     cmp byte [corriendoBandera], 0x00
     jne .pintar
     call desalojar_tarea_actual         ; una tarea llamo a la int 66
-    call screen_modo_estado
+    ;call screen_modo_estado
     jmp .fin
 
     .pintar:

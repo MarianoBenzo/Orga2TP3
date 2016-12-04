@@ -24,141 +24,153 @@ idt_descriptor IDT_DESC = {
 void atender_int(int n, int ebx, int ecx, int edx, int esi, int edi, int ebp, int esp, int cr0, int cr2, int cr3, int cr4, int cs, int ds, int es, int fs, int gs, int ss, int eflags, int eip, int eax) {
     int tarea = current_task();
     desalojar_tarea_actual();
+    unsigned char modo = modo_pantalla();
+    unsigned int dir_video;
 
-    int c;
-    for (c = 50; c < VIDEO_COLS - 3; c++){
-        print(" ", c, 1, C_BG_CYAN, VIDEO_ESTADO);
+    int it = 0;
+    while (it < 2){
+        if (modo != 2)
+            it = 2;
+
+        if (it == 1)
+            dir_video = VIDEO_SCREEN;
+        else
+            dir_video = VIDEO_ESTADO;
+
+        int c;
+        for (c = 50; c < VIDEO_COLS - 3; c++)
+            print(" ", c, 1, C_BG_CYAN, dir_video);
+        
+        switch(n){
+            case 0:
+                print("Divide Error", 50, 1, C_FG_BLACK + C_BG_CYAN, dir_video);
+                break;
+            case 1:
+                print("Reserved", 50, 1, C_FG_BLACK + C_BG_CYAN, dir_video);
+                break;
+            case 2:
+                print("NMI Interrupt", 50, 1, C_FG_BLACK + C_BG_CYAN, dir_video);
+                break;
+            case 3:
+                print("BreakPoint", 50, 1, C_FG_BLACK + C_BG_CYAN, dir_video);
+                break;
+            case 4:
+                print("Overflow", 50, 1, C_FG_BLACK + C_BG_CYAN, dir_video);
+                break;
+            case 5:
+                print("BOUND Range Exceeded", 50, 1, C_FG_BLACK + C_BG_CYAN, dir_video);
+                break;
+            case 6:
+                print("Invalid Opcode", 50, 1, C_FG_BLACK + C_BG_CYAN, dir_video);
+                break;
+            case 7:
+                print("Device Not Available", 50, 1, C_FG_BLACK + C_BG_CYAN, dir_video);
+                break;
+            case 8:
+                print("Double Fault", 50, 1, C_FG_BLACK + C_BG_CYAN, dir_video);
+                break;
+            case 9:
+                print("Coprocessor Segment Overrun", 50, 1, C_FG_BLACK + C_BG_CYAN, dir_video);
+                break;
+            case 10:
+                print("Invalid TSS", 50, 1, C_FG_BLACK + C_BG_CYAN, dir_video);
+                break;
+            case 11:
+                print("Segment Not Present", 50, 1, C_FG_BLACK + C_BG_CYAN, dir_video);
+                break;
+            case 12:
+                print("Stack-Segment Fault", 50, 1, C_FG_BLACK + C_BG_CYAN, dir_video);
+                break;
+            case 13:
+                print("General protection fault", 50, 1, C_FG_BLACK + C_BG_CYAN, dir_video);
+                break;
+            case 14:
+                print("Page fault", 50, 1, C_FG_BLACK + C_BG_CYAN, dir_video);
+                break;
+            case 15:
+                print("Intel Reserved", 50, 1, C_FG_BLACK + C_BG_CYAN, dir_video);
+                break;
+            case 16:
+                print("x86 FPU Floating-Point Error", 50, 1, C_FG_BLACK + C_BG_CYAN, dir_video);
+                break;
+            case 17:
+                print("Alignment Check", 50, 1, C_FG_BLACK + C_BG_CYAN, dir_video);
+                break;
+            case 18:
+                print("Machine Check", 50, 1, C_FG_BLACK + C_BG_CYAN, dir_video);
+                break;
+            case 19:
+                print("SIMD Floating-Point Exception", 50, 1, C_FG_BLACK + C_BG_CYAN, dir_video);
+                break;
+
+            default:
+                print_int(n, 50, 1, C_FG_BLACK + C_BG_CYAN, dir_video);
+        }
+        print("NAVIO ", 71, 1, C_FG_BLACK + C_BG_CYAN, dir_video);
+        print_int(tarea + 1, 77, 1, C_FG_BLACK + C_BG_CYAN, dir_video);
+
+        print("EAX ", 51, 2, C_FG_WHITE + C_BG_BLACK, dir_video);
+        print_hex(eax, 8, 55, 2, C_FG_WHITE + C_BG_BLACK, dir_video, 0);
+
+        print("EBX ", 51, 3, C_FG_WHITE + C_BG_BLACK, dir_video);
+        print_hex(ebx, 8, 55, 3, C_FG_WHITE + C_BG_BLACK, dir_video, 0);
+
+        print("ECX ", 51, 4, C_FG_WHITE + C_BG_BLACK, dir_video);
+        print_hex(ecx, 8, 55, 4, C_FG_WHITE + C_BG_BLACK, dir_video, 0);
+
+        print("EDX ", 51, 5, C_FG_WHITE + C_BG_BLACK, dir_video);
+        print_hex(edx, 8, 55, 5, C_FG_WHITE + C_BG_BLACK, dir_video, 0);
+
+        print("ESI ", 51, 6, C_FG_WHITE + C_BG_BLACK, dir_video);
+        print_hex(esi, 8, 55, 6, C_FG_WHITE + C_BG_BLACK, dir_video, 0);    
+
+        print("EDI ", 51, 7, C_FG_WHITE + C_BG_BLACK, dir_video);
+        print_hex(edi, 8, 55, 7, C_FG_WHITE + C_BG_BLACK, dir_video, 0);     
+
+        print("EBP ", 51, 8, C_FG_WHITE + C_BG_BLACK, dir_video);
+        print_hex(ebp, 8, 55, 8, C_FG_WHITE + C_BG_BLACK, dir_video, 0);       
+
+        print("ESP ", 51, 9, C_FG_WHITE + C_BG_BLACK, dir_video);
+        print_hex(esp, 8, 55, 9, C_FG_WHITE + C_BG_BLACK, dir_video, 0);    
+
+        print("EIP ", 51, 10, C_FG_WHITE + C_BG_BLACK, dir_video);
+        print_hex(eip, 8, 55, 10, C_FG_WHITE + C_BG_BLACK, dir_video, 0);    
+
+        print("CR0 ", 51, 11, C_FG_WHITE + C_BG_BLACK, dir_video);
+        print_hex(cr0, 8, 55, 11, C_FG_WHITE + C_BG_BLACK, dir_video, 0);    
+
+        print("CR2 ", 51, 12, C_FG_WHITE + C_BG_BLACK, dir_video);
+        print_hex(cr2, 8, 55, 12, C_FG_WHITE + C_BG_BLACK, dir_video, 0);  
+
+        print("CR3 ", 51, 13, C_FG_WHITE + C_BG_BLACK, dir_video);
+        print_hex(cr3, 8, 55, 13, C_FG_WHITE + C_BG_BLACK, dir_video, 0);      
+
+        print("CR4 ", 51, 14, C_FG_WHITE + C_BG_BLACK, dir_video);
+        print_hex(cr4, 8, 55, 14, C_FG_WHITE + C_BG_BLACK, dir_video, 0);    
+
+        print("CS ", 66, 2, C_FG_WHITE + C_BG_BLACK, dir_video);
+        print_hex(cs, 8, 69, 2, C_FG_WHITE + C_BG_BLACK, dir_video, 0);   
+
+        print("DS ", 66, 3, C_FG_WHITE + C_BG_BLACK, dir_video);
+        print_hex(ds, 8, 69, 3, C_FG_WHITE + C_BG_BLACK, dir_video, 0);
+
+        print("ES ", 66, 4, C_FG_WHITE + C_BG_BLACK, dir_video);
+        print_hex(es, 8, 69, 4, C_FG_WHITE + C_BG_BLACK, dir_video, 0);
+
+        print("FS ", 66, 5, C_FG_WHITE + C_BG_BLACK, dir_video);
+        print_hex(fs, 8, 69, 5, C_FG_WHITE + C_BG_BLACK, dir_video, 0);
+
+        print("GS ", 66, 6, C_FG_WHITE + C_BG_BLACK, dir_video);
+        print_hex(gs, 8, 69, 6, C_FG_WHITE + C_BG_BLACK, dir_video, 0);
+
+        print("SS ", 66, 7, C_FG_WHITE + C_BG_BLACK, dir_video);
+        print_hex(ss, 8, 69, 7, C_FG_WHITE + C_BG_BLACK, dir_video, 0);
+
+        print("EFLAGS", 66, 9, C_FG_WHITE + C_BG_BLACK, dir_video);
+        print_hex(eflags, 8, 69, 10, C_FG_WHITE + C_BG_BLACK, dir_video, 0);
+
+        it++;
     }
-
-    switch(n){
-        case 0:
-            print("Divide Error", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
-            break;
-        case 1:
-            print("Reserved", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
-            break;
-        case 2:
-            print("NMI Interrupt", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
-            break;
-        case 3:
-            print("BreakPoint", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
-            break;
-        case 4:
-            print("Overflow", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
-            break;
-        case 5:
-            print("BOUND Range Exceeded", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
-            break;
-        case 6:
-            print("Invalid Opcode", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
-            break;
-        case 7:
-            print("Device Not Available", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
-            break;
-        case 8:
-            print("Double Fault", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
-            break;
-        case 9:
-            print("Coprocessor Segment Overrun", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
-            break;
-        case 10:
-            print("Invalid TSS", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
-            break;
-        case 11:
-            print("Segment Not Present", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
-            break;
-        case 12:
-            print("Stack-Segment Fault", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
-            break;
-        case 13:
-            print("General protection fault", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
-            break;
-        case 14:
-            print("Page fault", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
-            break;
-        case 15:
-            print("Intel Reserved", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
-            break;
-        case 16:
-            print("x86 FPU Floating-Point Error", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
-            break;
-        case 17:
-            print("Alignment Check", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
-            break;
-        case 18:
-            print("Machine Check", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
-            break;
-        case 19:
-            print("SIMD Floating-Point Exception", 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
-            break;
-
-        default:
-            print_int(n, 50, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
-    }
-    print("NAVIO ", 71, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
-    print_int(tarea + 1, 77, 1, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO);
-
-    print("EAX ", 51, 2, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(eax, 8, 55, 2, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);
-
-    print("EBX ", 51, 3, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(ebx, 8, 55, 3, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);
-
-    print("ECX ", 51, 4, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(ecx, 8, 55, 4, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);
-
-    print("EDX ", 51, 5, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(edx, 8, 55, 5, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);
-
-    print("ESI ", 51, 6, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(esi, 8, 55, 6, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);    
-
-    print("EDI ", 51, 7, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(edi, 8, 55, 7, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);     
-
-    print("EBP ", 51, 8, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(ebp, 8, 55, 8, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);       
-
-    print("ESP ", 51, 9, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(esp, 8, 55, 9, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);    
-
-    print("EIP ", 51, 10, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(eip, 8, 55, 10, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);    
-
-    print("CR0 ", 51, 11, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(cr0, 8, 55, 11, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);    
-
-    print("CR2 ", 51, 12, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(cr2, 8, 55, 12, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);  
-
-    print("CR3 ", 51, 13, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(cr3, 8, 55, 13, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);      
-
-    print("CR4 ", 51, 14, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(cr4, 8, 55, 14, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);    
-
-    print("CS ", 66, 2, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(cs, 8, 69, 2, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);   
-
-    print("DS ", 66, 3, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(ds, 8, 69, 3, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);
-
-    print("ES ", 66, 4, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(es, 8, 69, 4, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);
-
-    print("FS ", 66, 5, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(fs, 8, 69, 5, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);
-
-    print("GS ", 66, 6, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(gs, 8, 69, 6, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);
-
-    print("SS ", 66, 7, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(ss, 8, 69, 7, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);
-
-    print("EFLAGS", 66, 9, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO);
-    print_hex(eflags, 8, 69, 10, C_FG_WHITE + C_BG_BLACK, VIDEO_ESTADO, 0);
-
-    screen_modo_estado();
 }
 
 void int_teclado(int n){

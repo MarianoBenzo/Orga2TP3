@@ -12,48 +12,63 @@
 
 unsigned int screen_paginas_tareas[CANT_TAREAS][3];
 coordenada ultimo_misil;
+unsigned char modo = 0;         //0 = ninguno; 1 = modo mapa; 2 = modo estado
 
 void pintar_buffer_bandera(unsigned int dir_buffer){
-    screen_modo_estado();
+    unsigned int dir_video;
     int flag = current_flag();
-    unsigned char *dst = (unsigned char*) VIDEO_SCREEN;
-    unsigned char *src = (unsigned char*) dir_buffer;
-    unsigned char fila;
-    unsigned char col;
+    int it = 0;
+    while (it < 2){
+        if (modo != 2)
+            it = 2;
 
-    if (flag < 4)
-        fila = 3;
-    else
-        fila = 10;
+        if (it == 1)
+            dir_video = VIDEO_SCREEN;
+        else
+            dir_video = VIDEO_ESTADO;
 
-    if (flag == 0 || flag == 4)
-        col = 2;
-    else if (flag == 1 || flag == 5)
-        col = 14;
-    else if (flag == 2 || flag == 6)
-        col = 26;
-    else
-        col = 38;
+        unsigned char *dst = (unsigned char*) dir_video;
+        unsigned char *src = (unsigned char*) dir_buffer;
+        unsigned char fila;
+        unsigned char col;
 
-    dst += (fila * 160) + (col * 2);
+        if (flag < 4)
+            fila = 3;
+        else
+            fila = 10;
 
-    int i;
-    int j = 0;
-    for(i = 0; i < 100; i++){
-        if (j == 20){
-            fila++;
-            dst = (unsigned char*) VIDEO_SCREEN + (fila * 160) + (col * 2); // Salto a la proxima linea
-            j = 0;
+        if (flag == 0 || flag == 4)
+            col = 2;
+        else if (flag == 1 || flag == 5)
+            col = 14;
+        else if (flag == 2 || flag == 6)
+            col = 26;
+        else
+            col = 38;
+
+        dst += (fila * 160) + (col * 2);
+
+        int i;
+        int j = 0;
+        for(i = 0; i < 100; i++){
+            if (j == 20){
+                fila++;
+                dst = (unsigned char*) dir_video + (fila * 160) + (col * 2); // Salto a la proxima linea
+                j = 0;
+            }
+            *(dst) = *(src);
+            dst++;
+            src++;
+            j++;
         }
-        *(dst) = *(src);
-        dst++;
-        src++;
-        j++;
-    }    
+
+        it++;
+    }
 }
 
 void borrar(int tarea){
-    ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_MAPA;
+    ca (*m)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_MAPA;
+    ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_SCREEN;
     unsigned char nro_pag;
     //La borro del mapa
     int f;
@@ -80,9 +95,19 @@ void borrar(int tarea){
                 print_int(tareaRepetida + 1, repetido.col, repetido.fila, C_FG_WHITE + C_BG_BROWN, VIDEO_MAPA);
             }else if (cantRepetidos == 0){
                 if (nro_pag == 3)
-                    pintar(&(p[coord_vieja.fila][coord_vieja.col]), C_BG_GREEN, 0);
+                    pintar(&(m[coord_vieja.fila][coord_vieja.col]), C_BG_GREEN, 0);
                 else
-                    pintar(&(p[coord_vieja.fila][coord_vieja.col]), C_BG_CYAN, 0);
+                    pintar(&(m[coord_vieja.fila][coord_vieja.col]), C_BG_CYAN, 0);
+            }
+            if (modo == 1){
+                if (cantRepetidos == 1){
+                    print_int(tareaRepetida + 1, repetido.col, repetido.fila, C_FG_WHITE + C_BG_BROWN, VIDEO_SCREEN);
+                }else if (cantRepetidos == 0){
+                    if (nro_pag == 3)
+                        pintar(&(p[coord_vieja.fila][coord_vieja.col]), C_BG_GREEN, 0);
+                    else
+                        pintar(&(p[coord_vieja.fila][coord_vieja.col]), C_BG_CYAN, 0);
+                }
             }
             screen_paginas_tareas[tarea][nro_pag - 1] = 0;
         }
@@ -126,16 +151,46 @@ void borrar(int tarea){
             }
         }
     }
+    if (modo == 2){
+        for (fila = f; fila < f + 5; fila++){
+            for (col = c; col < c + 10; col++){
+                if (fila == f || fila == f + 4){
+                    if (col < c + 2 || col > c + 7)
+                        pintar(&(p[fila][col]), C_BG_RED, 0);
+                    else
+                        pintar(&(p[fila][col]), C_BG_BLACK, 0);
+                }else if (fila == f + 1 || fila == f + 3){
+                    if ((col < c + 4 && col > c + 1) || (col < c + 8 && col > c + 5))
+                        pintar(&(p[fila][col]), C_BG_RED, 0);
+                    else
+                        pintar(&(p[fila][col]), C_BG_BLACK, 0);
+                }else{
+                    if (col < c + 6 && col > c + 3)
+                        pintar(&(p[fila][col]), C_BG_RED, 0);
+                    else
+                        pintar(&(p[fila][col]), C_BG_BLACK, 0);
+                }
+            }
+        }       
+    }
 }
 
 void redirigir_misil(unsigned int dir){
     coordenada nuevo_misil = coordenadas(dir);
-    ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_MAPA;
+    ca (*m)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_MAPA;
+    ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_SCREEN;
 
-    pintar(&(p[nuevo_misil.fila][nuevo_misil.col]), C_BG_RED, 0);
+    pintar(&(m[nuevo_misil.fila][nuevo_misil.col]), C_BG_RED, 0);
 
     if (ultimo_misil.fila != 0)
-        pintar(&(p[ultimo_misil.fila][ultimo_misil.col]), C_BG_CYAN, 0);
+        pintar(&(m[ultimo_misil.fila][ultimo_misil.col]), C_BG_CYAN, 0);
+
+    if (modo == 1){
+        pintar(&(p[nuevo_misil.fila][nuevo_misil.col]), C_BG_RED, 0);
+
+        if (ultimo_misil.fila != 0)
+            pintar(&(p[ultimo_misil.fila][ultimo_misil.col]), C_BG_CYAN, 0);       
+    }
 
     ultimo_misil.fila = nuevo_misil.fila;
     ultimo_misil.col  = nuevo_misil.col;
@@ -149,9 +204,12 @@ void asignar_dir(unsigned int tarea, unsigned int dir, unsigned char nro_pag){
     unsigned char columna = 6 + (nro_pag - 1) * 14;
     unsigned char fila = 16 + tarea;
     print_hex(dir, 8, columna, fila, C_FG_BLACK + C_BG_CYAN, VIDEO_ESTADO, 1);
+    if (modo == 2)
+        print_hex(dir, 8, columna, fila, C_FG_BLACK + C_BG_CYAN, VIDEO_SCREEN, 1);
 
     //Si ya estaba dibujada en el mapa, la borro
-    ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_MAPA;
+    ca (*m)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_MAPA;
+    ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO_SCREEN;
     if (screen_paginas_tareas[tarea][nro_pag - 1] != 0){
         coordenada coord_vieja = coordenadas(screen_paginas_tareas[tarea][nro_pag - 1]);
         int f;
@@ -175,9 +233,19 @@ void asignar_dir(unsigned int tarea, unsigned int dir, unsigned char nro_pag){
         	print_int(tareaRepetida + 1, repetido.col, repetido.fila, C_FG_WHITE + C_BG_BROWN, VIDEO_MAPA);
         }else if (cantRepetidos == 0){
         	if (nro_pag == 3)
-            	pintar(&(p[coord_vieja.fila][coord_vieja.col]), C_BG_GREEN, 0);
+            	pintar(&(m[coord_vieja.fila][coord_vieja.col]), C_BG_GREEN, 0);
         	else
-            	pintar(&(p[coord_vieja.fila][coord_vieja.col]), C_BG_CYAN, 0);
+            	pintar(&(m[coord_vieja.fila][coord_vieja.col]), C_BG_CYAN, 0);
+        }
+        if (modo == 1){
+            if (cantRepetidos == 1){
+                print_int(tareaRepetida + 1, repetido.col, repetido.fila, C_FG_WHITE + C_BG_BROWN, VIDEO_SCREEN);
+            }else if (cantRepetidos == 0){
+                if (nro_pag == 3)
+                    pintar(&(p[coord_vieja.fila][coord_vieja.col]), C_BG_GREEN, 0);
+                else
+                    pintar(&(p[coord_vieja.fila][coord_vieja.col]), C_BG_CYAN, 0);
+            }
         }
     }
 
@@ -186,11 +254,19 @@ void asignar_dir(unsigned int tarea, unsigned int dir, unsigned char nro_pag){
     unsigned char x = coord_nueva.col;
     unsigned char y = coord_nueva.fila;
     
-    if (p[y][x].c != 0){
+    if (m[y][x].c != 0){
         //Hay otra pagina mapeada en el mismo lugar!
         print("X", x, y, C_FG_WHITE + C_BG_MAGENTA, VIDEO_MAPA);
     } else{
         print_int(tarea + 1, x, y, C_FG_WHITE + C_BG_BROWN, VIDEO_MAPA);
+    }
+    if (modo == 1){
+        if (p[y][x].c != 0){
+            //Hay otra pagina mapeada en el mismo lugar!
+            print("X", x, y, C_FG_WHITE + C_BG_MAGENTA, VIDEO_SCREEN);
+        } else{
+            print_int(tarea + 1, x, y, C_FG_WHITE + C_BG_BROWN, VIDEO_SCREEN);
+        }
     }
     //Actualizo la matriz
     screen_paginas_tareas[tarea][nro_pag - 1] = dir;
@@ -237,6 +313,9 @@ coordenada coordenadas(unsigned int dir){
     return coord;
 }
 
+unsigned char modo_pantalla(){
+    return modo;
+}
 
 void pintar(ca* p, unsigned char a, unsigned char c)
 {
@@ -283,6 +362,7 @@ void screen_modo_mapa()
         dst++;
         src++;
     }
+    modo = 1;
 }
 
 void screen_modo_estado()
@@ -295,6 +375,7 @@ void screen_modo_estado()
         dst++;
         src++;
     }
+    modo = 2;
 }
 
 void pintar_scheduler(){
